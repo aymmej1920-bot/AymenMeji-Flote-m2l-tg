@@ -4,7 +4,9 @@ import React from 'react';
 import { CustomCard, CustomCardHeader, CustomCardTitle, CustomCardContent } from '@/components/CustomCard';
 import { BarChart2, TrendingUp, DollarSign } from 'lucide-react';
 import { motion } from 'framer-motion';
-import MonthlyFuelCostChart from '@/components/reports/MonthlyFuelCostChart'; // Import the new chart component
+import MonthlyFuelCostChart from '@/components/reports/MonthlyFuelCostChart';
+import MonthlyMaintenanceCostChart from '@/components/reports/MonthlyMaintenanceCostChart'; // Import new chart
+import DriverPerformanceReport from '@/components/reports/DriverPerformanceReport'; // Import new report
 
 const Reports: React.FC = () => {
   return (
@@ -59,12 +61,29 @@ const Reports: React.FC = () => {
         </motion.div>
       </div>
 
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.4 }}
+        >
+          <MonthlyFuelCostChart />
+        </motion.div>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.5 }}
+        >
+          <MonthlyMaintenanceCostChart />
+        </motion.div>
+      </div>
+
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.4 }}
+        transition={{ duration: 0.5, delay: 0.6 }}
       >
-        <MonthlyFuelCostChart />
+        <DriverPerformanceReport />
       </motion.div>
     </div>
   );
