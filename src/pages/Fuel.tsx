@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { CustomButton } from '@/components/CustomButton';
 import { PlusCircle, Fuel as FuelIcon } from 'lucide-react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from '@/components/ui/dialog';
 import FuelLogForm from '@/components/fuel/FuelLogForm';
 import { DataTable } from '@/components/ui/data-table';
 import { columns, FuelLog } from '@/components/fuel/FuelLogColumns';
@@ -129,6 +129,9 @@ const Fuel: React.FC = () => {
               <DialogTitle className="font-heading text-foreground">
                 {editingFuelLog ? "Modifier le relevé de carburant" : "Ajouter un nouveau relevé de carburant"}
               </DialogTitle>
+              <DialogDescription>
+                {editingFuelLog ? "Modifiez les détails du relevé de carburant existant." : "Remplissez les informations pour ajouter un nouveau relevé de carburant."}
+              </DialogDescription>
             </DialogHeader>
             <FuelLogForm onSuccess={handleFormSuccess} initialData={editingFuelLog || undefined} />
           </DialogContent>

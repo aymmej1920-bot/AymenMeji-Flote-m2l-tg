@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { CustomButton } from '@/components/CustomButton';
 import { PlusCircle, FileText } from 'lucide-react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from '@/components/ui/dialog';
 import DocumentForm from '@/components/documents/DocumentForm';
 import { DataTable } from '@/components/ui/data-table';
 import { columns, Document } from '@/components/documents/DocumentColumns';
@@ -129,6 +129,9 @@ const Documents: React.FC = () => {
               <DialogTitle className="font-heading text-foreground">
                 {editingDocument ? "Modifier le document" : "Ajouter un nouveau document"}
               </DialogTitle>
+              <DialogDescription>
+                {editingDocument ? "Modifiez les détails du document existant." : "Remplissez les informations pour ajouter un nouveau document."}
+              </DialogDescription>
             </DialogHeader>
             <DocumentForm onSuccess={handleFormSuccess} initialData={editingDocument || undefined} />
           </DialogContent>

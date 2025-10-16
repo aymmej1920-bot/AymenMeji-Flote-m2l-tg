@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { CustomButton } from '@/components/CustomButton';
 import { PlusCircle } from 'lucide-react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from '@/components/ui/dialog';
 import DriverForm from '@/components/drivers/DriverForm';
 import { DataTable } from '@/components/ui/data-table';
 import { columns, Driver } from '@/components/drivers/DriverColumns';
@@ -129,6 +129,9 @@ const Drivers: React.FC = () => {
               <DialogTitle className="font-heading text-foreground">
                 {editingDriver ? "Modifier le conducteur" : "Ajouter un nouveau conducteur"}
               </DialogTitle>
+              <DialogDescription>
+                {editingDriver ? "Modifiez les détails du conducteur existant." : "Remplissez les informations pour ajouter un nouveau conducteur."}
+              </DialogDescription>
             </DialogHeader>
             <DriverForm onSuccess={handleFormSuccess} initialData={editingDriver || undefined} />
           </DialogContent>

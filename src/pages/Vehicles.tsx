@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { CustomButton } from '@/components/CustomButton';
 import { PlusCircle } from 'lucide-react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from '@/components/ui/dialog';
 import VehicleForm from '@/components/vehicles/VehicleForm';
 import { DataTable } from '@/components/ui/data-table';
 import { columns, Vehicle } from '@/components/vehicles/VehicleColumns';
@@ -129,6 +129,9 @@ const Vehicles: React.FC = () => {
               <DialogTitle className="font-heading text-foreground">
                 {editingVehicle ? "Modifier le véhicule" : "Ajouter un nouveau véhicule"}
               </DialogTitle>
+              <DialogDescription>
+                {editingVehicle ? "Modifiez les détails du véhicule existant." : "Remplissez les informations pour ajouter un nouveau véhicule à votre flotte."}
+              </DialogDescription>
             </DialogHeader>
             <VehicleForm onSuccess={handleFormSuccess} initialData={editingVehicle || undefined} />
           </DialogContent>

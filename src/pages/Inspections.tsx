@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { CustomButton } from '@/components/CustomButton';
 import { PlusCircle, ClipboardList } from 'lucide-react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from '@/components/ui/dialog';
 import InspectionForm from '@/components/inspections/InspectionForm';
 import { DataTable } from '@/components/ui/data-table';
 import { columns, Inspection } from '@/components/inspections/InspectionColumns';
@@ -129,6 +129,9 @@ const Inspections: React.FC = () => {
               <DialogTitle className="font-heading text-foreground">
                 {editingInspection ? "Modifier l'inspection" : "Ajouter une nouvelle inspection"}
               </DialogTitle>
+              <DialogDescription>
+                {editingInspection ? "Modifiez les détails de l'inspection existante." : "Remplissez les informations pour ajouter une nouvelle inspection."}
+              </DialogDescription>
             </DialogHeader>
             <InspectionForm onSuccess={handleFormSuccess} initialData={editingInspection || undefined} />
           </DialogContent>

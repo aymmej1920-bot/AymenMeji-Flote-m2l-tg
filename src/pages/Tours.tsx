@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { CustomButton } from '@/components/CustomButton';
 import { PlusCircle, Map } from 'lucide-react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from '@/components/ui/dialog';
 import TourForm from '@/components/tours/TourForm';
 import { DataTable } from '@/components/ui/data-table';
 import { columns, Tour } from '@/components/tours/TourColumns';
@@ -129,6 +129,9 @@ const Tours: React.FC = () => {
               <DialogTitle className="font-heading text-foreground">
                 {editingTour ? "Modifier la tournée" : "Ajouter une nouvelle tournée"}
               </DialogTitle>
+              <DialogDescription>
+                {editingTour ? "Modifiez les détails de la tournée existante." : "Remplissez les informations pour ajouter une nouvelle tournée."}
+              </DialogDescription>
             </DialogHeader>
             <TourForm onSuccess={handleFormSuccess} initialData={editingTour || undefined} />
           </DialogContent>

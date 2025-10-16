@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { CustomButton } from '@/components/CustomButton';
 import { PlusCircle } from 'lucide-react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from '@/components/ui/dialog';
 import MaintenanceForm from '@/components/maintenance/MaintenanceForm';
 import { DataTable } from '@/components/ui/data-table';
 import { columns, MaintenanceRecord } from '@/components/maintenance/MaintenanceColumns';
@@ -129,6 +129,9 @@ const Maintenance: React.FC = () => {
               <DialogTitle className="font-heading text-foreground">
                 {editingRecord ? "Modifier l'enregistrement de maintenance" : "Ajouter un nouvel enregistrement de maintenance"}
               </DialogTitle>
+              <DialogDescription>
+                {editingRecord ? "Modifiez les détails de l'enregistrement de maintenance existant." : "Remplissez les informations pour ajouter un nouvel enregistrement de maintenance."}
+              </DialogDescription>
             </DialogHeader>
             <MaintenanceForm onSuccess={handleFormSuccess} initialData={editingRecord || undefined} />
           </DialogContent>
