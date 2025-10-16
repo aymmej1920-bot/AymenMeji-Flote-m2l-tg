@@ -82,28 +82,28 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
       <Sidebar />
       <div className="flex flex-col flex-grow">
         <motion.header
-          className="bg-card text-foreground p-4 shadow-sm border-b border-border flex justify-between items-center" // Adjusted shadow
+          className="bg-card text-foreground p-4 shadow-sm border-b border-border flex justify-between items-center"
           variants={headerVariants}
         >
           <Link to="/" className="text-2xl font-heading font-bold text-primary">
             Fleet Manager M2l-TG
           </Link>
           <div className="flex items-center space-x-4">
-            <div className="text-xs text-muted-foreground hidden md:block"> {/* Smaller text for date */}
+            <div className="text-xs text-muted-foreground hidden md:block">
               {new Date().toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
             </div>
             {userEmail && (
-              <div className="flex items-center space-x-2 bg-muted rounded-full px-3 py-1"> {/* Pill shape for user */}
-                <Avatar className="h-6 w-6"> {/* Smaller avatar */}
+              <div className="flex items-center space-x-2 bg-muted rounded-full px-3 py-1">
+                <Avatar className="h-6 w-6">
                   <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
-                  <AvatarFallback className="text-xs">FM</AvatarFallback> {/* Smaller fallback text */}
+                  <AvatarFallback className="text-xs">FM</AvatarFallback>
                 </Avatar>
                 <span className="text-sm font-medium text-foreground hidden sm:block">{userEmail}</span>
               </div>
             )}
             <ThemeToggle />
             <CustomButton variant="ghost" size="icon" onClick={handleLogout}>
-              <LogOut className="h-4 w-4" /> {/* Smaller icon */}
+              <LogOut className="h-4 w-4" />
               <span className="sr-only">Déconnexion</span>
             </CustomButton>
           </div>

@@ -54,52 +54,48 @@ export default {
         },
         // Custom colors based on the new palette
         "night-blue": {
-          DEFAULT: "#111827", // Updated to new title text color
+          DEFAULT: "#111827",
           foreground: "#FFFFFF",
         },
         turquoise: {
-          DEFAULT: "#00AEEF", // Updated to new accent color
+          DEFAULT: "#00C8AA", // New accent color
           foreground: "#FFFFFF",
         },
-        coral: {
-          DEFAULT: "#FF6B6B",
+        "text-main": {
+          DEFAULT: "#1E293B",
           foreground: "#FFFFFF",
         },
-        "light-grey": {
-          DEFAULT: "#F9FAFB", // Updated to new main background
-          foreground: "#4A4A4A",
-        },
-        "dark-grey": {
-          DEFAULT: "#6B7280", // Updated to new sub-text/labels color
+        "text-secondary": {
+          DEFAULT: "#64748B",
           foreground: "#FFFFFF",
         },
-        white: {
-          DEFAULT: "#FFFFFF",
-          foreground: "#111827", // Updated
+        "table-header-bg": {
+          DEFAULT: "#F1F5F9",
+          foreground: "#1E293B",
         },
-        // Dark mode specific colors
+        // Dark mode specific colors (adjusting existing ones to fit new palette)
         "dark-background": {
-          DEFAULT: "#111827", // Updated
-          foreground: "#E5E7EB", // Updated
+          DEFAULT: "#111827",
+          foreground: "#E5E7EB",
         },
         "dark-card": {
           DEFAULT: "#1C1F26",
-          foreground: "#E5E7EB", // Updated
+          foreground: "#E5E7EB",
         },
-        "dark-accent": { // New dark mode accent color
+        "dark-accent": {
           DEFAULT: "#14B8A6",
           foreground: "#111827",
         }
       },
       borderRadius: {
-        lg: "10px", // Adjusted for buttons/cards to be more rounded
+        lg: "12px", // Adjusted for more rounded corners
         md: "8px",
         sm: "4px",
       },
       fontFamily: {
         sans: ["Inter", "sans-serif"], // Default text
-        heading: ["Poppins", "sans-serif"], // Titles
-        mono: ["Montserrat", "monospace"], // Numbers/Stats (already good)
+        heading: ["Inter", "sans-serif"], // Titles (using Inter for consistency as per brief)
+        mono: ["Montserrat", "monospace"], // Numbers/Stats (keeping Montserrat)
       },
       keyframes: {
         "accordion-down": {
@@ -122,7 +118,7 @@ export default {
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
-        "pulse-light": "pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite", // For button hover
+        "pulse-light": "pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite",
       },
     },
   },

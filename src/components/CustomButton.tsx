@@ -11,22 +11,22 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground shadow-md hover:bg-primary/90 hover:shadow-lg active:shadow-sm transition-all duration-200", // Updated to use primary color
+        default: "bg-primary text-primary-foreground shadow-md hover:bg-primary/90 hover:shadow-lg active:shadow-sm transition-all duration-200",
         destructive:
           "bg-destructive text-destructive-foreground hover:bg-destructive/90",
         outline:
-          "border border-input bg-background hover:bg-accent/10 hover:text-accent-foreground", // Adjusted hover for outline
+          "border border-input bg-background hover:bg-accent/10 hover:text-accent-foreground",
         secondary:
-          "bg-secondary text-secondary-foreground shadow-md hover:bg-secondary/90 hover:shadow-lg active:shadow-sm transition-all duration-200", // Updated to use secondary color
-        ghost: "hover:bg-accent/10 hover:text-accent-foreground", // Adjusted hover for ghost
+          "bg-secondary text-secondary-foreground shadow-md hover:bg-secondary/90 hover:shadow-lg active:shadow-sm transition-all duration-200",
+        ghost: "hover:bg-accent/10 hover:text-accent-foreground",
         link: "text-primary underline-offset-4 hover:underline",
         coral: "bg-coral text-coral-foreground shadow-md hover:bg-coral/90 hover:shadow-lg active:shadow-sm transition-all duration-200",
       },
       size: {
-        default: "h-10 px-4 py-2 rounded-md", // Adjusted to md radius
-        sm: "h-9 rounded-sm px-3", // Adjusted to sm radius
-        lg: "h-11 rounded-lg px-8", // Adjusted to lg radius
-        icon: "h-10 w-10 rounded-md", // Adjusted to md radius
+        default: "h-10 px-4 py-2 rounded-md",
+        sm: "h-9 rounded-sm px-3",
+        lg: "h-11 rounded-lg px-8",
+        icon: "h-10 w-10 rounded-md",
       },
     },
     defaultVariants: {

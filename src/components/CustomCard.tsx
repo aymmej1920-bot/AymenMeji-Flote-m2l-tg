@@ -38,7 +38,7 @@ const CustomCardTitle = React.forwardRef<
   <h3
     ref={ref}
     className={cn(
-      "font-heading text-2xl font-semibold leading-none tracking-tight",
+      "font-heading text-2xl font-semibold leading-none tracking-tight", // font-semibold for 600 weight
       className
     )}
     {...props}

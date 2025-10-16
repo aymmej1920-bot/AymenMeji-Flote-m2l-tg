@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { CustomButton } from "@/components/CustomButton";
 import { CustomCard, CustomCardContent } from "@/components/CustomCard";
 import { Car } from "lucide-react";
-import { motion } from "framer-motion"; // Import motion
+import { motion } from "framer-motion";
 
 const Index = () => {
   return (
@@ -15,8 +15,8 @@ const Index = () => {
       >
         <CustomCard className="text-center p-8">
           <CustomCardContent className="p-0">
-            <h1 className="text-3xl md:text-4xl font-heading font-extrabold mb-4 text-foreground">Bienvenue sur Fleet Manager M2l-TG</h1> {/* Adjusted title size */}
-            <p className="text-xl text-muted-foreground mb-8">
+            <h1 className="text-3xl md:text-4xl font-heading font-semibold mb-4 text-text-main">Bienvenue sur Fleet Manager M2l-TG</h1> {/* Adjusted title size and font-weight */}
+            <p className="text-xl text-text-secondary mb-8"> {/* Using new secondary text color */}
               Votre solution complète pour une gestion de flotte efficace et intelligente.
             </p>
             <CustomButton size="lg" asChild>
