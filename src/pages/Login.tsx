@@ -69,7 +69,7 @@ const Login: React.FC = () => {
                   },
                   forgotten_password: {
                     email_label: 'Adresse email',
-                    password_reset_button_label: 'Envoyer les instructions de réinitialisation',
+                    button_label: 'Envoyer les instructions de réinitialisation', // Corrected property name
                     link_text: 'Mot de passe oublié ?',
                     email_input_placeholder: 'Votre adresse email',
                   },
