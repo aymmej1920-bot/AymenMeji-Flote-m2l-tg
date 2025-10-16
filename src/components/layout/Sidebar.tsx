@@ -3,7 +3,7 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { CustomButton } from '@/components/CustomButton';
-import { Car, Users, Fuel, FileText, Wrench, Map, ClipboardList, BarChart2, Bell, Home } from 'lucide-react';
+import { Car, Users, Fuel, FileText, Wrench, Map, ClipboardList, BarChart2, Bell, Home, LayoutDashboard } from 'lucide-react'; // Import LayoutDashboard icon
 import { cn } from '@/lib/utils';
 
 interface SidebarProps {
@@ -13,6 +13,7 @@ interface SidebarProps {
 
 const navItems = [
   { name: 'Accueil', href: '/', icon: Home },
+  { name: 'Tableau de Bord', href: '/dashboard', icon: LayoutDashboard }, // Nouveau lien pour le tableau de bord
   { name: 'Véhicules', href: '/vehicles', icon: Car },
   { name: 'Conducteurs', href: '/drivers', icon: Users },
   { name: 'Maintenance', href: '/maintenance', icon: Wrench },

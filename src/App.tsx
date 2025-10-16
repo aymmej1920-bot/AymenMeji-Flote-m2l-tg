@@ -5,8 +5,9 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
-import Vehicles from "./pages/Vehicles"; // Importez la nouvelle page
-import MainLayout from "./components/layout/MainLayout"; // Importez le MainLayout
+import Vehicles from "./pages/Vehicles";
+import Dashboard from "./pages/Dashboard"; // Importez la nouvelle page Dashboard
+import MainLayout from "./components/layout/MainLayout";
 
 const queryClient = new QueryClient();
 
@@ -16,10 +17,11 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <MainLayout> {/* Enveloppez les routes avec MainLayout */}
+        <MainLayout>
           <Routes>
             <Route path="/" element={<Index />} />
-            <Route path="/vehicles" element={<Vehicles />} /> {/* Nouvelle route pour les véhicules */}
+            <Route path="/dashboard" element={<Dashboard />} /> {/* Nouvelle route pour le tableau de bord */}
+            <Route path="/vehicles" element={<Vehicles />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
