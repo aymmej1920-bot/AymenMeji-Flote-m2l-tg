@@ -3,13 +3,13 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { CustomButton } from '@/components/CustomButton';
-import { Car, Users, Fuel, FileText, Wrench, Map, ClipboardList, BarChart2, Bell, Home, LayoutDashboard } from 'lucide-react';
+import { Car, Users, Fuel, FileText, Wrench, Map, BarChart2, Bell, Home, LayoutDashboard } from 'lucide-react'; // Removed ClipboardList
 import { cn } from '@/lib/utils';
 import { motion, Variants, Easing } from 'framer-motion'; // Import motion, Variants, and Easing
 
 interface SidebarProps {
   isOpen?: boolean; // Potentiellement pour un état mobile
-  onClose?: () => void; // Potentiellement pour un état mobile
+  onClose?: () => void; // Potentiellement pour un un état mobile
 }
 
 const navItems = [
@@ -21,7 +21,7 @@ const navItems = [
   { name: 'Carburant', href: '/fuel', icon: Fuel },
   { name: 'Documents', href: '/documents', icon: FileText },
   { name: 'Tournées', href: '/tours', icon: Map },
-  { name: 'Inspections', href: '/inspections', icon: ClipboardList },
+  // { name: 'Inspections', href: '/inspections', icon: ClipboardList }, // Removed inspection item
   { name: 'Rapports', href: '/reports', icon: BarChart2 },
   { name: 'Alertes', href: '/notifications', icon: Bell },
 ];

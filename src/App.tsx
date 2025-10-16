@@ -12,7 +12,6 @@ import Maintenance from "./pages/Maintenance";
 import Fuel from "./pages/Fuel";
 import Documents from "./pages/Documents";
 import Tours from "./pages/Tours";
-import Inspections from "./pages/Inspections";
 import Reports from "./pages/Reports";
 import Notifications from "./pages/Notifications";
 import Login from "./pages/Login"; // Import Login page
@@ -43,7 +42,7 @@ const App = () => (
                     <Route path="/fuel" element={<Fuel />} />
                     <Route path="/documents" element={<Documents />} />
                     <Route path="/tours" element={<Tours />} />
-                    <Route path="/inspections" element={<Inspections />} />
+                    {/* <Route path="/inspections" element={<Inspections />} /> */} {/* Removed inspection route */}
                     <Route path="/reports" element={<Reports />} />
                     <Route path="/notifications" element={<Notifications />} />
                     {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
