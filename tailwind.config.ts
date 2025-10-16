@@ -58,6 +58,7 @@ export default {
         'main-text': '#1E293B',            // Gris doux, lisible
         'secondary-text': '#64748B',       // Sobriété
         'sidebar-bg-dark': '#111827',      // Dark for sidebar
+        'table-header-bg': 'hsl(var(--muted))', // Added: Table header background color
         
         // Existing KPI colors (keep them as they are for now)
         "kpi-blue-start": "#3B82F6",
