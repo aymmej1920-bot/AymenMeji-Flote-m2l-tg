@@ -72,9 +72,9 @@ const Maintenance: React.FC = () => {
       cell: ({ row }) => new Date(row.getValue('date') as string).toLocaleDateString(),
     },
     {
-      accessorKey: 'vehicles.plate',
+      accessorKey: 'vehicles', // Changed accessorKey to the object itself
       header: "Véhicule",
-      cell: ({ row }) => (row.original.vehicles as { plate: string })?.plate || 'N/A',
+      cell: ({ row }) => (row.original.vehicles ? row.original.vehicles.plate : 'N/A'), // Access plate from the nested object
     },
     {
       accessorKey: 'type',
