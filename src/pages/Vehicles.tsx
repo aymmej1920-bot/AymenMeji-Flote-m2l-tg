@@ -11,6 +11,7 @@ import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
 import { CustomCard } from '@/components/CustomCard';
 import { Skeleton } from '@/components/ui/skeleton';
+import { motion } from 'framer-motion'; // Import motion
 
 const Vehicles: React.FC = () => {
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
@@ -45,7 +46,12 @@ const Vehicles: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="flex justify-between items-center"
+      >
         <h1 className="text-3xl font-heading font-bold text-foreground">Gestion des Véhicules</h1> {/* Use text-foreground for theme support */}
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
@@ -60,21 +66,27 @@ const Vehicles: React.FC = () => {
             <VehicleForm onSuccess={handleVehicleAdded} />
           </DialogContent>
         </Dialog>
-      </div>
+      </motion.div>
 
-      <CustomCard className="p-6">
-        {loading ? (
-          <div className="space-y-4">
-            <Skeleton className="h-10 w-full" />
-            <Skeleton className="h-10 w-full" />
-            <Skeleton className="h-10 w-full" />
-            <Skeleton className="h-10 w-full" />
-            <Skeleton className="h-10 w-full" />
-          </div>
-        ) : (
-          <DataTable columns={columns} data={vehicles} />
-        )}
-      </CustomCard>
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.2 }}
+      >
+        <CustomCard className="p-6">
+          {loading ? (
+            <div className="space-y-4">
+              <Skeleton className="h-10 w-full" />
+              <Skeleton className="h-10 w-full" />
+              <Skeleton className="h-10 w-full" />
+              <Skeleton className="h-10 w-full" />
+              <Skeleton className="h-10 w-full" />
+            </div>
+          ) : (
+            <DataTable columns={columns} data={vehicles} />
+          )}
+        </CustomCard>
+      </motion.div>
     </div>
   );
 };
