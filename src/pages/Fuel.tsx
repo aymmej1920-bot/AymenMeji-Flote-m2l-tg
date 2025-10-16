@@ -134,7 +134,7 @@ const Fuel: React.FC = () => {
               <PlusCircle className="mr-2 h-4 w-4" /> Ajouter un Relevé
             </CustomButton>
           </DialogTrigger>
-          <DialogContent className="sm:max-w-[600px]">
+          <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle className="font-heading text-foreground">
                 {editingFuelLog ? "Modifier le relevé de carburant" : "Ajouter un nouveau relevé de carburant"}

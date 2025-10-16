@@ -134,7 +134,7 @@ const Tours: React.FC = () => {
               <PlusCircle className="mr-2 h-4 w-4" /> Ajouter une Tournée
             </CustomButton>
           </DialogTrigger>
-          <DialogContent className="sm:max-w-[600px]">
+          <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle className="font-heading text-foreground">
                 {editingTour ? "Modifier la tournée" : "Ajouter une nouvelle tournée"}
