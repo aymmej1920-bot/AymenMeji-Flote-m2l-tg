@@ -44,7 +44,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
           variants={headerVariants}
         >
           <Link to="/" className="text-2xl font-heading font-bold text-primary">
-            M2l-TG
+            Fleet Manager M2l-TG
           </Link>
           <div className="flex items-center space-x-4">
             <div className="text-sm text-muted-foreground hidden md:block">

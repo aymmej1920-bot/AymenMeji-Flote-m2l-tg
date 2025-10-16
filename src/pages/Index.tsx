@@ -15,7 +15,7 @@ const Index = () => {
       >
         <CustomCard className="text-center p-8">
           <CustomCardContent className="p-0">
-            <h1 className="text-5xl font-heading font-extrabold mb-4 text-foreground">Bienvenue sur M2l-TG</h1> {/* Use text-foreground for theme support */}
+            <h1 className="text-5xl font-heading font-extrabold mb-4 text-foreground">Bienvenue sur Fleet Manager M2l-TG</h1> {/* Use text-foreground for theme support */}
             <p className="text-xl text-muted-foreground mb-8"> {/* Use text-muted-foreground for theme support */}
               Votre solution complète pour une gestion de flotte efficace et intelligente.
             </p>
