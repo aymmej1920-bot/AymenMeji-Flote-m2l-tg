@@ -3,7 +3,7 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { CustomButton } from '@/components/CustomButton';
-import { Car, Users, Fuel, FileText, Wrench, Map, BarChart2, Bell, Home, LayoutDashboard } from 'lucide-react';
+import { Home, LayoutDashboard } from 'lucide-react'; // Only keep essential icons
 import { cn } from '@/lib/utils';
 import { motion, Variants, Easing } from 'framer-motion';
 
@@ -14,15 +14,7 @@ interface SidebarProps {
 
 const navItems = [
   { name: 'Accueil', href: '/', icon: Home },
-  { name: 'Tableau de Bord', href: '/dashboard', icon: LayoutDashboard },
-  { name: 'Véhicules', href: '/vehicles', icon: Car },
-  { name: 'Conducteurs', href: '/drivers', icon: Users },
-  { name: 'Maintenance', href: '/maintenance', icon: Wrench },
-  { name: 'Carburant', href: '/fuel', icon: Fuel },
-  { name: 'Documents', href: '/documents', icon: FileText },
-  { name: 'Tournées', href: '/tours', icon: Map },
-  { name: 'Rapports', href: '/reports', icon: BarChart2 },
-  { name: 'Alertes', href: '/notifications', icon: Bell },
+  { name: 'Tableau de Bord', href: '/dashboard', icon: LayoutDashboard }, // Placeholder for future dashboard
 ];
 
 const Sidebar: React.FC<SidebarProps> = () => {
@@ -65,7 +57,7 @@ const Sidebar: React.FC<SidebarProps> = () => {
                   "w-full justify-start text-left px-4 py-2 rounded-lg transition-colors duration-200",
                   isActive
                     ? "bg-sidebar-primary/10 text-sidebar-primary hover:bg-sidebar-primary/20"
-                    : "hover:bg-sidebar-border hover:text-sidebar-foreground" // Adjusted hover for non-active items
+                    : "hover:bg-sidebar-border hover:text-sidebar-foreground"
                 )}
                 asChild
               >
