@@ -36,7 +36,8 @@ const Vehicles: React.FC = () => {
     if (!user) {
       throw new Error("Vous devez être connecté pour voir les véhicules.");
     }
-    return user.id;
+    console.log("Authenticated user ID:", user?.id); // Log user ID
+    return user?.id;
   };
 
   // Fetch vehicles using React Query
@@ -44,11 +45,17 @@ const Vehicles: React.FC = () => {
     queryKey: ['vehicles'],
     queryFn: async () => {
       const userId = await getUserId();
+      if (!userId) {
+        throw new Error("User ID is not available.");
+      }
+      const selectString = 'id,make,model,year,license_plate,vin,mileage,fuel_type,status,created_at,next_maintenance_date,user_id';
+      console.log("Supabase select string for vehicles:", selectString); // Log select string
+
       const { data, error } = await supabase
         .from('vehicles')
-        .select('id,make,model,year,license_plate,vin,mileage,fuel_type,status,created_at,next_maintenance_date,user_id')
+        .select(selectString)
         .eq('user_id', userId)
-        .order('created_at', { ascending: false });
+        .order('created_at', { ascending: false }); // Keep order for now, but simplified select
 
       if (error) throw error;
       return data as Vehicle[];
@@ -65,6 +72,9 @@ const Vehicles: React.FC = () => {
   const deleteVehicleMutation = useMutation<void, Error, string>({
     mutationFn: async (vehicleId: string) => {
       const userId = await getUserId();
+      if (!userId) {
+        throw new Error("User ID is not available.");
+      }
       const { error } = await supabase
         .from('vehicles')
         .delete()
