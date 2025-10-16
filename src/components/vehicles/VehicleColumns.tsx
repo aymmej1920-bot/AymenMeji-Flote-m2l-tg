@@ -24,6 +24,7 @@ export type Vehicle = {
   mileage?: number;
   fuel_type?: string;
   status?: string;
+  next_maintenance_date?: string; // New field
   created_at: string;
 };
 

@@ -19,6 +19,13 @@ import { supabase } from "@/lib/supabase";
 import { CustomCard, CustomCardContent, CustomCardHeader, CustomCardTitle } from "@/components/CustomCard";
 import { motion } from "framer-motion";
 import { Vehicle } from "./VehicleColumns"; // Import Vehicle type
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { CalendarIcon } from "lucide-react";
+import { Calendar } from "@/components/ui/calendar";
+import { cn } from "@/lib/utils";
+import { format } from "date-fns";
+import { fr } from "date-fns/locale";
+import { Button } from "@/components/ui/button";
 
 // Schéma de validation pour un véhicule
 const vehicleFormSchema = z.object({
@@ -43,6 +50,7 @@ const vehicleFormSchema = z.object({
   }).optional(),
   fuel_type: z.string().optional(),
   status: z.string().optional(),
+  next_maintenance_date: z.date().optional().nullable(), // New field
 });
 
 type VehicleFormValues = z.infer<typeof vehicleFormSchema>;
@@ -59,6 +67,7 @@ const VehicleForm: React.FC<VehicleFormProps> = ({ onSuccess, initialData }) => 
       ...initialData,
       year: initialData.year, // Ensure year is number
       mileage: initialData.mileage || 0, // Ensure mileage is number
+      next_maintenance_date: initialData.next_maintenance_date ? new Date(initialData.next_maintenance_date) : null, // New field
     } : {
       make: "",
       model: "",
@@ -68,6 +77,7 @@ const VehicleForm: React.FC<VehicleFormProps> = ({ onSuccess, initialData }) => 
       mileage: 0,
       fuel_type: "Essence",
       status: "Actif",
+      next_maintenance_date: null, // New field
     },
   });
 
@@ -78,6 +88,7 @@ const VehicleForm: React.FC<VehicleFormProps> = ({ onSuccess, initialData }) => 
         ...initialData,
         year: initialData.year,
         mileage: initialData.mileage || 0,
+        next_maintenance_date: initialData.next_maintenance_date ? new Date(initialData.next_maintenance_date) : null,
       });
     } else {
       form.reset({
@@ -89,6 +100,7 @@ const VehicleForm: React.FC<VehicleFormProps> = ({ onSuccess, initialData }) => 
         mileage: 0,
         fuel_type: "Essence",
         status: "Actif",
+        next_maintenance_date: null,
       });
     }
   }, [initialData, form]);
@@ -96,9 +108,14 @@ const VehicleForm: React.FC<VehicleFormProps> = ({ onSuccess, initialData }) => 
 
   async function onSubmit(values: VehicleFormValues) {
     try {
+      const payload = {
+        ...values,
+        next_maintenance_date: values.next_maintenance_date ? format(values.next_maintenance_date, "yyyy-MM-dd") : null,
+      };
+
       if (initialData?.id) {
         // Update existing vehicle
-        const { id, ...updateValues } = values; // Exclude id from update payload
+        const { id, ...updateValues } = payload; // Exclude id from update payload
         const { error } = await supabase
           .from('vehicles')
           .update(updateValues)
@@ -112,7 +129,7 @@ const VehicleForm: React.FC<VehicleFormProps> = ({ onSuccess, initialData }) => 
         // Add new vehicle
         const { data, error } = await supabase
           .from('vehicles')
-          .insert([values]);
+          .insert([payload]);
 
         if (error) {
           throw error;
@@ -214,6 +231,45 @@ const VehicleForm: React.FC<VehicleFormProps> = ({ onSuccess, initialData }) => 
                     <FormControl>
                       <Input type="number" placeholder="Ex: 50000" {...field} onChange={event => field.onChange(parseInt(event.target.value))} />
                     </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="next_maintenance_date"
+                render={({ field }) => (
+                  <FormItem className="flex flex-col">
+                    <FormLabel>Prochaine Date de Maintenance (Optionnel)</FormLabel>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <FormControl>
+                          <Button
+                            variant={"outline"}
+                            className={cn(
+                              "w-full pl-3 text-left font-normal",
+                              !field.value && "text-muted-foreground"
+                            )}
+                          >
+                            {field.value ? (
+                              format(field.value, "PPP", { locale: fr })
+                            ) : (
+                              <span>Choisir une date</span>
+                            )}
+                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                          </Button>
+                        </FormControl>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={field.value || undefined}
+                          onSelect={field.onChange}
+                          initialFocus
+                          locale={fr}
+                        />
+                      </PopoverContent>
+                    </Popover>
                     <FormMessage />
                   </FormItem>
                 )}
