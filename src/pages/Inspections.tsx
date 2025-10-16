@@ -7,7 +7,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import InspectionForm from '@/components/inspections/InspectionForm';
 import { DataTable } from '@/components/ui/data-table';
 import { columns, Inspection } from '@/components/inspections/InspectionColumns';
-import { supabase, auth } from '@/lib/supabase'; // Import auth
+import { supabase, auth } from '@/lib/supabase';
 import { toast } from 'sonner';
 import { CustomCard } from '@/components/CustomCard';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -22,46 +22,70 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 const Inspections: React.FC = () => {
-  const [inspections, setInspections] = useState<Inspection[]>([]);
-  const [loading, setLoading] = useState(true);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [editingInspection, setEditingInspection] = useState<Inspection | null>(null);
   const [inspectionToDelete, setInspectionToDelete] = useState<Inspection | null>(null);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const queryClient = useQueryClient();
 
-  const fetchInspections = async () => {
-    setLoading(true);
+  const getUserId = async () => {
     const { data: { user } } = await auth.getUser();
     if (!user) {
-      toast.error("Vous devez être connecté pour voir les inspections.");
-      setLoading(false);
-      return;
+      throw new Error("Vous devez être connecté pour voir les inspections.");
     }
-
-    const { data, error } = await supabase
-      .from('inspections')
-      .select('*')
-      .eq('user_id', user.id) // Filter by user_id
-      .order('inspection_date', { ascending: false });
-
-    if (error) {
-      console.error("Erreur lors du chargement des inspections:", error.message);
-      toast.error("Erreur lors du chargement des inspections: " + error.message);
-      setInspections([]);
-    } else {
-      setInspections(data as Inspection[]);
-    }
-    setLoading(false);
+    return user.id;
   };
 
+  // Fetch inspections using React Query
+  const { data: inspections, isLoading, error } = useQuery<Inspection[], Error>({
+    queryKey: ['inspections'],
+    queryFn: async () => {
+      const userId = await getUserId();
+      const { data, error } = await supabase
+        .from('inspections')
+        .select('*')
+        .eq('user_id', userId)
+        .order('inspection_date', { ascending: false });
+
+      if (error) throw error;
+      return data as Inspection[];
+    },
+  });
+
   useEffect(() => {
-    fetchInspections();
-  }, []);
+    if (error) {
+      toast.error("Erreur lors du chargement des inspections: " + error.message);
+    }
+  }, [error]);
+
+  // Mutation for deleting an inspection
+  const deleteInspectionMutation = useMutation<void, Error, string>({
+    mutationFn: async (inspectionId: string) => {
+      const userId = await getUserId();
+      const { error } = await supabase
+        .from('inspections')
+        .delete()
+        .eq('id', inspectionId)
+        .eq('user_id', userId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success("Inspection supprimée avec succès !");
+      queryClient.invalidateQueries({ queryKey: ['inspections'] });
+      setInspectionToDelete(null);
+      setShowDeleteDialog(false);
+    },
+    onError: (err) => {
+      console.error("Erreur lors de la suppression de l'inspection:", err.message);
+      toast.error("Erreur lors de la suppression de l'inspection: " + err.message);
+    },
+  });
 
   const handleFormSuccess = () => {
-    fetchInspections();
+    queryClient.invalidateQueries({ queryKey: ['inspections'] });
     setIsAddDialogOpen(false);
     setEditingInspection(null);
   };
@@ -71,29 +95,9 @@ const Inspections: React.FC = () => {
     setShowDeleteDialog(true);
   };
 
-  const confirmDeleteInspection = async () => {
+  const confirmDeleteInspection = () => {
     if (inspectionToDelete) {
-      const { data: { user } } = await auth.getUser();
-      if (!user) {
-        toast.error("Vous devez être connecté pour effectuer cette action.");
-        return;
-      }
-
-      const { error } = await supabase
-        .from('inspections')
-        .delete()
-        .eq('id', inspectionToDelete.id)
-        .eq('user_id', user.id); // Ensure user owns the record
-
-      if (error) {
-        console.error("Erreur lors de la suppression de l'inspection:", error.message);
-        toast.error("Erreur lors de la suppression de l'inspection: " + error.message);
-      } else {
-        toast.success("Inspection supprimée avec succès !");
-        fetchInspections();
-      }
-      setInspectionToDelete(null);
-      setShowDeleteDialog(false);
+      deleteInspectionMutation.mutate(inspectionToDelete.id);
     }
   };
 
@@ -137,7 +141,7 @@ const Inspections: React.FC = () => {
         transition={{ duration: 0.5, delay: 0.2 }}
       >
         <CustomCard className="p-6">
-          {loading ? (
+          {isLoading ? (
             <div className="space-y-4">
               <Skeleton className="h-10 w-full" />
               <Skeleton className="h-10 w-full" />
@@ -146,7 +150,7 @@ const Inspections: React.FC = () => {
               <Skeleton className="h-10 w-full" />
             </div>
           ) : (
-            <DataTable columns={columns({ onDelete: handleDeleteClick, onEdit: handleEditClick })} data={inspections} />
+            <DataTable columns={columns({ onDelete: handleDeleteClick, onEdit: handleEditClick })} data={inspections || []} />
           )}
         </CustomCard>
       </motion.div>

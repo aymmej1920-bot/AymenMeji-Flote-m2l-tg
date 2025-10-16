@@ -7,7 +7,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import TourForm from '@/components/tours/TourForm';
 import { DataTable } from '@/components/ui/data-table';
 import { columns, Tour } from '@/components/tours/TourColumns';
-import { supabase, auth } from '@/lib/supabase'; // Import auth
+import { supabase, auth } from '@/lib/supabase';
 import { toast } from 'sonner';
 import { CustomCard } from '@/components/CustomCard';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -22,46 +22,70 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 const Tours: React.FC = () => {
-  const [tours, setTours] = useState<Tour[]>([]);
-  const [loading, setLoading] = useState(true);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [editingTour, setEditingTour] = useState<Tour | null>(null);
   const [tourToDelete, setTourToDelete] = useState<Tour | null>(null);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const queryClient = useQueryClient();
 
-  const fetchTours = async () => {
-    setLoading(true);
+  const getUserId = async () => {
     const { data: { user } } = await auth.getUser();
     if (!user) {
-      toast.error("Vous devez être connecté pour voir les tournées.");
-      setLoading(false);
-      return;
+      throw new Error("Vous devez être connecté pour voir les tournées.");
     }
-
-    const { data, error } = await supabase
-      .from('tours')
-      .select('*')
-      .eq('user_id', user.id) // Filter by user_id
-      .order('start_date', { ascending: false });
-
-    if (error) {
-      console.error("Erreur lors du chargement des tournées:", error.message);
-      toast.error("Erreur lors du chargement des tournées: " + error.message);
-      setTours([]);
-    } else {
-      setTours(data as Tour[]);
-    }
-    setLoading(false);
+    return user.id;
   };
 
+  // Fetch tours using React Query
+  const { data: tours, isLoading, error } = useQuery<Tour[], Error>({
+    queryKey: ['tours'],
+    queryFn: async () => {
+      const userId = await getUserId();
+      const { data, error } = await supabase
+        .from('tours')
+        .select('*')
+        .eq('user_id', userId)
+        .order('start_date', { ascending: false });
+
+      if (error) throw error;
+      return data as Tour[];
+    },
+  });
+
   useEffect(() => {
-    fetchTours();
-  }, []);
+    if (error) {
+      toast.error("Erreur lors du chargement des tournées: " + error.message);
+    }
+  }, [error]);
+
+  // Mutation for deleting a tour
+  const deleteTourMutation = useMutation<void, Error, string>({
+    mutationFn: async (tourId: string) => {
+      const userId = await getUserId();
+      const { error } = await supabase
+        .from('tours')
+        .delete()
+        .eq('id', tourId)
+        .eq('user_id', userId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success("Tournée supprimée avec succès !");
+      queryClient.invalidateQueries({ queryKey: ['tours'] });
+      setTourToDelete(null);
+      setShowDeleteDialog(false);
+    },
+    onError: (err) => {
+      console.error("Erreur lors de la suppression de la tournée:", err.message);
+      toast.error("Erreur lors de la suppression de la tournée: " + err.message);
+    },
+  });
 
   const handleFormSuccess = () => {
-    fetchTours();
+    queryClient.invalidateQueries({ queryKey: ['tours'] });
     setIsAddDialogOpen(false);
     setEditingTour(null);
   };
@@ -71,29 +95,9 @@ const Tours: React.FC = () => {
     setShowDeleteDialog(true);
   };
 
-  const confirmDeleteTour = async () => {
+  const confirmDeleteTour = () => {
     if (tourToDelete) {
-      const { data: { user } } = await auth.getUser();
-      if (!user) {
-        toast.error("Vous devez être connecté pour effectuer cette action.");
-        return;
-      }
-
-      const { error } = await supabase
-        .from('tours')
-        .delete()
-        .eq('id', tourToDelete.id)
-        .eq('user_id', user.id); // Ensure user owns the record
-
-      if (error) {
-        console.error("Erreur lors de la suppression de la tournée:", error.message);
-        toast.error("Erreur lors de la suppression de la tournée: " + error.message);
-      } else {
-        toast.success("Tournée supprimée avec succès !");
-        fetchTours();
-      }
-      setTourToDelete(null);
-      setShowDeleteDialog(false);
+      deleteTourMutation.mutate(tourToDelete.id);
     }
   };
 
@@ -137,7 +141,7 @@ const Tours: React.FC = () => {
         transition={{ duration: 0.5, delay: 0.2 }}
       >
         <CustomCard className="p-6">
-          {loading ? (
+          {isLoading ? (
             <div className="space-y-4">
               <Skeleton className="h-10 w-full" />
               <Skeleton className="h-10 w-full" />
@@ -146,7 +150,7 @@ const Tours: React.FC = () => {
               <Skeleton className="h-10 w-full" />
             </div>
           ) : (
-            <DataTable columns={columns({ onDelete: handleDeleteClick, onEdit: handleEditClick })} data={tours} />
+            <DataTable columns={columns({ onDelete: handleDeleteClick, onEdit: handleEditClick })} data={tours || []} />
           )}
         </CustomCard>
       </motion.div>

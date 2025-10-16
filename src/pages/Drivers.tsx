@@ -4,10 +4,10 @@ import React, { useState, useEffect } from 'react';
 import { CustomButton } from '@/components/CustomButton';
 import { PlusCircle } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import DriverForm from '@/components/drivers/DriverForm'; // Import DriverForm
+import DriverForm from '@/components/drivers/DriverForm';
 import { DataTable } from '@/components/ui/data-table';
-import { columns, Driver } from '@/components/drivers/DriverColumns'; // Import columns and Driver type
-import { supabase, auth } from '@/lib/supabase'; // Import auth
+import { columns, Driver } from '@/components/drivers/DriverColumns';
+import { supabase, auth } from '@/lib/supabase';
 import { toast } from 'sonner';
 import { CustomCard } from '@/components/CustomCard';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -22,46 +22,70 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 const Drivers: React.FC = () => {
-  const [drivers, setDrivers] = useState<Driver[]>([]);
-  const [loading, setLoading] = useState(true);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [editingDriver, setEditingDriver] = useState<Driver | null>(null);
   const [driverToDelete, setDriverToDelete] = useState<Driver | null>(null);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const queryClient = useQueryClient();
 
-  const fetchDrivers = async () => {
-    setLoading(true);
+  const getUserId = async () => {
     const { data: { user } } = await auth.getUser();
     if (!user) {
-      toast.error("Vous devez être connecté pour voir les conducteurs.");
-      setLoading(false);
-      return;
+      throw new Error("Vous devez être connecté pour voir les conducteurs.");
     }
-
-    const { data, error } = await supabase
-      .from('drivers')
-      .select('*')
-      .eq('user_id', user.id) // Filter by user_id
-      .order('created_at', { ascending: false });
-
-    if (error) {
-      console.error("Erreur lors du chargement des conducteurs:", error.message);
-      toast.error("Erreur lors du chargement des conducteurs: " + error.message);
-      setDrivers([]);
-    } else {
-      setDrivers(data as Driver[]);
-    }
-    setLoading(false);
+    return user.id;
   };
 
+  // Fetch drivers using React Query
+  const { data: drivers, isLoading, error } = useQuery<Driver[], Error>({
+    queryKey: ['drivers'],
+    queryFn: async () => {
+      const userId = await getUserId();
+      const { data, error } = await supabase
+        .from('drivers')
+        .select('*')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      return data as Driver[];
+    },
+  });
+
   useEffect(() => {
-    fetchDrivers();
-  }, []);
+    if (error) {
+      toast.error("Erreur lors du chargement des conducteurs: " + error.message);
+    }
+  }, [error]);
+
+  // Mutation for deleting a driver
+  const deleteDriverMutation = useMutation<void, Error, string>({
+    mutationFn: async (driverId: string) => {
+      const userId = await getUserId();
+      const { error } = await supabase
+        .from('drivers')
+        .delete()
+        .eq('id', driverId)
+        .eq('user_id', userId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success("Conducteur supprimé avec succès !");
+      queryClient.invalidateQueries({ queryKey: ['drivers'] });
+      setDriverToDelete(null);
+      setShowDeleteDialog(false);
+    },
+    onError: (err) => {
+      console.error("Erreur lors de la suppression du conducteur:", err.message);
+      toast.error("Erreur lors de la suppression du conducteur: " + err.message);
+    },
+  });
 
   const handleFormSuccess = () => {
-    fetchDrivers();
+    queryClient.invalidateQueries({ queryKey: ['drivers'] });
     setIsAddDialogOpen(false);
     setEditingDriver(null);
   };
@@ -71,29 +95,9 @@ const Drivers: React.FC = () => {
     setShowDeleteDialog(true);
   };
 
-  const confirmDeleteDriver = async () => {
+  const confirmDeleteDriver = () => {
     if (driverToDelete) {
-      const { data: { user } } = await auth.getUser();
-      if (!user) {
-        toast.error("Vous devez être connecté pour effectuer cette action.");
-        return;
-      }
-
-      const { error } = await supabase
-        .from('drivers')
-        .delete()
-        .eq('id', driverToDelete.id)
-        .eq('user_id', user.id); // Ensure user owns the record
-
-      if (error) {
-        console.error("Erreur lors de la suppression du conducteur:", error.message);
-        toast.error("Erreur lors de la suppression du conducteur: " + error.message);
-      } else {
-        toast.success("Conducteur supprimé avec succès !");
-        fetchDrivers();
-      }
-      setDriverToDelete(null);
-      setShowDeleteDialog(false);
+      deleteDriverMutation.mutate(driverToDelete.id);
     }
   };
 
@@ -137,7 +141,7 @@ const Drivers: React.FC = () => {
         transition={{ duration: 0.5, delay: 0.2 }}
       >
         <CustomCard className="p-6">
-          {loading ? (
+          {isLoading ? (
             <div className="space-y-4">
               <Skeleton className="h-10 w-full" />
               <Skeleton className="h-10 w-full" />
@@ -146,7 +150,7 @@ const Drivers: React.FC = () => {
               <Skeleton className="h-10 w-full" />
             </div>
           ) : (
-            <DataTable columns={columns({ onDelete: handleDeleteClick, onEdit: handleEditClick })} data={drivers} />
+            <DataTable columns={columns({ onDelete: handleDeleteClick, onEdit: handleEditClick })} data={drivers || []} />
           )}
         </CustomCard>
       </motion.div>

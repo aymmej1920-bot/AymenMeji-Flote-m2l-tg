@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-import { supabase, auth } from "@/lib/supabase"; // Import auth
+import { supabase, auth } from "@/lib/supabase";
 import { CustomCard, CustomCardContent, CustomCardHeader, CustomCardTitle } from "@/components/CustomCard";
 import { motion } from "framer-motion";
 import { Driver } from "./DriverColumns";
@@ -26,7 +26,8 @@ import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Button } from "@/components/ui/button"; // Import the Button component
+import { Button } from "@/components/ui/button";
+import { useMutation, useQueryClient } from '@tanstack/react-query'; // Import React Query hooks
 
 // Schéma de validation pour un conducteur
 const driverFormSchema = z.object({
@@ -42,7 +43,7 @@ const driverFormSchema = z.object({
   }),
   phone_number: z.string().optional(),
   email: z.string().email({ message: "Adresse email invalide." }).optional().or(z.literal("")),
-  hire_date: z.date().optional().nullable(), // Changed to Date object
+  hire_date: z.date().optional().nullable(),
   status: z.string().optional(),
 });
 
@@ -54,6 +55,7 @@ interface DriverFormProps {
 }
 
 const DriverForm: React.FC<DriverFormProps> = ({ onSuccess, initialData }) => {
+  const queryClient = useQueryClient();
   const form = useForm<DriverFormValues>({
     resolver: zodResolver(driverFormSchema),
     defaultValues: initialData ? {
@@ -95,20 +97,19 @@ const DriverForm: React.FC<DriverFormProps> = ({ onSuccess, initialData }) => {
     }
   }, [initialData, form]);
 
-  async function onSubmit(values: DriverFormValues) {
-    try {
+  const addUpdateDriverMutation = useMutation<void, Error, DriverFormValues>({
+    mutationFn: async (values: DriverFormValues) => {
       const { data: { user } } = await auth.getUser();
       if (!user) {
-        toast.error("Vous devez être connecté pour effectuer cette action.");
-        return;
+        throw new Error("Vous devez être connecté pour effectuer cette action.");
       }
 
       const payload = {
         ...values,
         hire_date: values.hire_date ? format(values.hire_date, "yyyy-MM-dd") : null,
-        email: values.email === "" ? null : values.email, // Handle empty string for optional fields
+        email: values.email === "" ? null : values.email,
         phone_number: values.phone_number === "" ? null : values.phone_number,
-        user_id: user.id, // Add user_id to the payload
+        user_id: user.id,
       };
 
       if (initialData?.id) {
@@ -117,28 +118,29 @@ const DriverForm: React.FC<DriverFormProps> = ({ onSuccess, initialData }) => {
           .from('drivers')
           .update(updateValues)
           .eq('id', initialData.id)
-          .eq('user_id', user.id); // Ensure user owns the record
-
-        if (error) {
-          throw error;
-        }
-        toast.success("Conducteur mis à jour avec succès !");
+          .eq('user_id', user.id);
+        if (error) throw error;
       } else {
-        const { data, error } = await supabase
+        const { error } = await supabase
           .from('drivers')
           .insert([payload]);
-
-        if (error) {
-          throw error;
-        }
-        toast.success("Conducteur ajouté avec succès !");
+        if (error) throw error;
       }
+    },
+    onSuccess: () => {
+      toast.success(initialData ? "Conducteur mis à jour avec succès !" : "Conducteur ajouté avec succès !");
+      queryClient.invalidateQueries({ queryKey: ['drivers'] });
       form.reset();
       onSuccess?.();
-    } catch (error: any) {
-      console.error("Erreur lors de l'opération sur le conducteur:", error.message);
-      toast.error("Erreur lors de l'opération sur le conducteur: " + error.message);
-    }
+    },
+    onError: (err) => {
+      console.error("Erreur lors de l'opération sur le conducteur:", err.message);
+      toast.error("Erreur lors de l'opération sur le conducteur: " + err.message);
+    },
+  });
+
+  function onSubmit(values: DriverFormValues) {
+    addUpdateDriverMutation.mutate(values);
   }
 
   return (
@@ -280,8 +282,8 @@ const DriverForm: React.FC<DriverFormProps> = ({ onSuccess, initialData }) => {
                   </FormItem>
                 )}
               />
-              <CustomButton type="submit" className="w-full">
-                {initialData ? "Mettre à jour le conducteur" : "Ajouter le conducteur"}
+              <CustomButton type="submit" className="w-full" disabled={addUpdateDriverMutation.isPending}>
+                {addUpdateDriverMutation.isPending ? "Chargement..." : (initialData ? "Mettre à jour le conducteur" : "Ajouter le conducteur")}
               </CustomButton>
             </form>
           </Form>

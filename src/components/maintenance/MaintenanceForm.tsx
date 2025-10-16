@@ -16,7 +16,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { supabase, auth } from "@/lib/supabase"; // Import auth
+import { supabase, auth } from "@/lib/supabase";
 import { CustomCard, CustomCardContent, CustomCardHeader, CustomCardTitle } from "@/components/CustomCard";
 import { motion } from "framer-motion";
 import { MaintenanceRecord } from "./MaintenanceColumns";
@@ -28,7 +28,8 @@ import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { Vehicle } from "@/components/vehicles/VehicleColumns"; // Import Vehicle type
+import { Vehicle } from "@/components/vehicles/VehicleColumns";
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'; // Import React Query hooks
 
 // Schéma de validation pour un enregistrement de maintenance
 const maintenanceFormSchema = z.object({
@@ -56,7 +57,7 @@ interface MaintenanceFormProps {
 }
 
 const MaintenanceForm: React.FC<MaintenanceFormProps> = ({ onSuccess, initialData }) => {
-  const [vehicles, setVehicles] = useState<Vehicle[]>([]);
+  const queryClient = useQueryClient();
   const form = useForm<MaintenanceFormValues>({
     resolver: zodResolver(maintenanceFormSchema),
     defaultValues: initialData ? {
@@ -75,26 +76,33 @@ const MaintenanceForm: React.FC<MaintenanceFormProps> = ({ onSuccess, initialDat
     },
   });
 
-  useEffect(() => {
-    const fetchVehicles = async () => {
-      const { data: { user } } = await auth.getUser();
-      if (!user) {
-        toast.error("Vous devez être connecté pour voir les véhicules.");
-        return;
-      }
+  const getUserId = async () => {
+    const { data: { user } } = await auth.getUser();
+    if (!user) {
+      throw new Error("Vous devez être connecté pour voir les véhicules.");
+    }
+    return user.id;
+  };
+
+  // Fetch vehicles using React Query
+  const { data: vehicles, isLoading: isLoadingVehicles, error: vehiclesError } = useQuery<Vehicle[], Error>({
+    queryKey: ['vehicles'],
+    queryFn: async () => {
+      const userId = await getUserId();
       const { data, error } = await supabase
         .from('vehicles')
         .select('id, make, model, license_plate')
-        .eq('user_id', user.id); // Filter by user_id
-      if (error) {
-        console.error("Erreur lors du chargement des véhicules:", error.message);
-        toast.error("Erreur lors du chargement des véhicules: " + error.message);
-      } else {
-        setVehicles(data as Vehicle[]);
-      }
-    };
-    fetchVehicles();
-  }, []);
+        .eq('user_id', userId);
+      if (error) throw error;
+      return data as Vehicle[];
+    },
+  });
+
+  useEffect(() => {
+    if (vehiclesError) {
+      toast.error("Erreur lors du chargement des véhicules: " + vehiclesError.message);
+    }
+  }, [vehiclesError]);
 
   useEffect(() => {
     if (initialData) {
@@ -117,12 +125,11 @@ const MaintenanceForm: React.FC<MaintenanceFormProps> = ({ onSuccess, initialDat
     }
   }, [initialData, form]);
 
-  async function onSubmit(values: MaintenanceFormValues) {
-    try {
+  const addUpdateMaintenanceMutation = useMutation<void, Error, MaintenanceFormValues>({
+    mutationFn: async (values: MaintenanceFormValues) => {
       const { data: { user } } = await auth.getUser();
       if (!user) {
-        toast.error("Vous devez être connecté pour effectuer cette action.");
-        return;
+        throw new Error("Vous devez être connecté pour effectuer cette action.");
       }
 
       const payload = {
@@ -130,7 +137,7 @@ const MaintenanceForm: React.FC<MaintenanceFormProps> = ({ onSuccess, initialDat
         maintenance_date: format(values.maintenance_date, "yyyy-MM-dd"),
         cost: values.cost || null,
         notes: values.notes === "" ? null : values.notes,
-        user_id: user.id, // Add user_id to the payload
+        user_id: user.id,
       };
 
       if (initialData?.id) {
@@ -139,28 +146,29 @@ const MaintenanceForm: React.FC<MaintenanceFormProps> = ({ onSuccess, initialDat
           .from('maintenance_records')
           .update(updateValues)
           .eq('id', initialData.id)
-          .eq('user_id', user.id); // Ensure user owns the record
-
-        if (error) {
-          throw error;
-        }
-        toast.success("Enregistrement de maintenance mis à jour avec succès !");
+          .eq('user_id', user.id);
+        if (error) throw error;
       } else {
-        const { data, error } = await supabase
+        const { error } = await supabase
           .from('maintenance_records')
           .insert([payload]);
-
-        if (error) {
-          throw error;
-        }
-        toast.success("Enregistrement de maintenance ajouté avec succès !");
+        if (error) throw error;
       }
+    },
+    onSuccess: () => {
+      toast.success(initialData ? "Enregistrement de maintenance mis à jour avec succès !" : "Enregistrement de maintenance ajouté avec succès !");
+      queryClient.invalidateQueries({ queryKey: ['maintenanceRecords'] });
       form.reset();
       onSuccess?.();
-    } catch (error: any) {
-      console.error("Erreur lors de l'opération sur l'enregistrement de maintenance:", error.message);
-      toast.error("Erreur lors de l'opération sur l'enregistrement de maintenance: " + error.message);
-    }
+    },
+    onError: (err) => {
+      console.error("Erreur lors de l'opération sur l'enregistrement de maintenance:", err.message);
+      toast.error("Erreur lors de l'opération sur l'enregistrement de maintenance: " + err.message);
+    },
+  });
+
+  function onSubmit(values: MaintenanceFormValues) {
+    addUpdateMaintenanceMutation.mutate(values);
   }
 
   return (
@@ -184,12 +192,12 @@ const MaintenanceForm: React.FC<MaintenanceFormProps> = ({ onSuccess, initialDat
                     <FormLabel>Véhicule</FormLabel>
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                       <FormControl>
-                        <SelectTrigger>
+                        <SelectTrigger disabled={isLoadingVehicles}>
                           <SelectValue placeholder="Sélectionner un véhicule" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {vehicles.map((vehicle) => (
+                        {vehicles?.map((vehicle) => (
                           <SelectItem key={vehicle.id} value={vehicle.id}>
                             {vehicle.make} {vehicle.model} ({vehicle.license_plate})
                           </SelectItem>
@@ -301,8 +309,8 @@ const MaintenanceForm: React.FC<MaintenanceFormProps> = ({ onSuccess, initialDat
                   </FormItem>
                 )}
               />
-              <CustomButton type="submit" className="w-full">
-                {initialData ? "Mettre à jour l'enregistrement" : "Ajouter l'enregistrement"}
+              <CustomButton type="submit" className="w-full" disabled={addUpdateMaintenanceMutation.isPending}>
+                {addUpdateMaintenanceMutation.isPending ? "Chargement..." : (initialData ? "Mettre à jour l'enregistrement" : "Ajouter l'enregistrement")}
               </CustomButton>
             </form>
           </Form>

@@ -16,7 +16,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { supabase, auth } from "@/lib/supabase"; // Import auth
+import { supabase, auth } from "@/lib/supabase";
 import { CustomCard, CustomCardContent, CustomCardHeader, CustomCardTitle } from "@/components/CustomCard";
 import { motion } from "framer-motion";
 import { Inspection } from "./InspectionColumns";
@@ -30,6 +30,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Button } from "@/components/ui/button";
 import { Vehicle } from "@/components/vehicles/VehicleColumns";
 import { Driver } from "@/components/drivers/DriverColumns";
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'; // Import React Query hooks
 
 // Schéma de validation pour une inspection
 const inspectionFormSchema = z.object({
@@ -52,9 +53,7 @@ interface InspectionFormProps {
 }
 
 const InspectionForm: React.FC<InspectionFormProps> = ({ onSuccess, initialData }) => {
-  const [vehicles, setVehicles] = useState<Vehicle[]>([]);
-  const [drivers, setDrivers] = useState<Driver[]>([]);
-
+  const queryClient = useQueryClient();
   const form = useForm<InspectionFormValues>({
     resolver: zodResolver(inspectionFormSchema),
     defaultValues: initialData ? {
@@ -74,38 +73,50 @@ const InspectionForm: React.FC<InspectionFormProps> = ({ onSuccess, initialData 
     },
   });
 
-  useEffect(() => {
-    const fetchData = async () => {
-      const { data: { user } } = await auth.getUser();
-      if (!user) {
-        toast.error("Vous devez être connecté pour voir les données.");
-        return;
-      }
+  const getUserId = async () => {
+    const { data: { user } } = await auth.getUser();
+    if (!user) {
+      throw new Error("Vous devez être connecté pour voir les données.");
+    }
+    return user.id;
+  };
 
-      const { data: vehiclesData, error: vehiclesError } = await supabase
+  // Fetch vehicles using React Query
+  const { data: vehicles, isLoading: isLoadingVehicles, error: vehiclesError } = useQuery<Vehicle[], Error>({
+    queryKey: ['vehicles'],
+    queryFn: async () => {
+      const userId = await getUserId();
+      const { data, error } = await supabase
         .from('vehicles')
         .select('id, make, model, license_plate')
-        .eq('user_id', user.id); // Filter by user_id
-      if (vehiclesError) {
-        console.error("Erreur lors du chargement des véhicules:", vehiclesError.message);
-        toast.error("Erreur lors du chargement des véhicules: " + vehiclesError.message);
-      } else {
-        setVehicles(vehiclesData as Vehicle[]);
-      }
+        .eq('user_id', userId);
+      if (error) throw error;
+      return data as Vehicle[];
+    },
+  });
 
-      const { data: driversData, error: driversError } = await supabase
+  // Fetch drivers using React Query
+  const { data: drivers, isLoading: isLoadingDrivers, error: driversError } = useQuery<Driver[], Error>({
+    queryKey: ['drivers'],
+    queryFn: async () => {
+      const userId = await getUserId();
+      const { data, error } = await supabase
         .from('drivers')
         .select('id, first_name, last_name')
-        .eq('user_id', user.id); // Filter by user_id
-      if (driversError) {
-        console.error("Erreur lors du chargement des conducteurs:", driversError.message);
-        toast.error("Erreur lors du chargement des conducteurs: " + driversError.message);
-      } else {
-        setDrivers(driversData as Driver[]);
-      }
-    };
-    fetchData();
-  }, []);
+        .eq('user_id', userId);
+      if (error) throw error;
+      return data as Driver[];
+    },
+  });
+
+  useEffect(() => {
+    if (vehiclesError) {
+      toast.error("Erreur lors du chargement des véhicules: " + vehiclesError.message);
+    }
+    if (driversError) {
+      toast.error("Erreur lors du chargement des conducteurs: " + driversError.message);
+    }
+  }, [vehiclesError, driversError]);
 
   useEffect(() => {
     if (initialData) {
@@ -129,12 +140,11 @@ const InspectionForm: React.FC<InspectionFormProps> = ({ onSuccess, initialData 
     }
   }, [initialData, form]);
 
-  async function onSubmit(values: InspectionFormValues) {
-    try {
+  const addUpdateInspectionMutation = useMutation<void, Error, InspectionFormValues>({
+    mutationFn: async (values: InspectionFormValues) => {
       const { data: { user } } = await auth.getUser();
       if (!user) {
-        toast.error("Vous devez être connecté pour effectuer cette action.");
-        return;
+        throw new Error("Vous devez être connecté pour effectuer cette action.");
       }
 
       const payload = {
@@ -143,7 +153,7 @@ const InspectionForm: React.FC<InspectionFormProps> = ({ onSuccess, initialData 
         vehicle_id: values.vehicle_id || null,
         driver_id: values.driver_id || null,
         notes: values.notes === "" ? null : values.notes,
-        user_id: user.id, // Add user_id to the payload
+        user_id: user.id,
       };
 
       if (initialData?.id) {
@@ -152,28 +162,29 @@ const InspectionForm: React.FC<InspectionFormProps> = ({ onSuccess, initialData 
           .from('inspections')
           .update(updateValues)
           .eq('id', initialData.id)
-          .eq('user_id', user.id); // Ensure user owns the record
-
-        if (error) {
-          throw error;
-        }
-        toast.success("Inspection mise à jour avec succès !");
+          .eq('user_id', user.id);
+        if (error) throw error;
       } else {
-        const { data, error } = await supabase
+        const { error } = await supabase
           .from('inspections')
           .insert([payload]);
-
-        if (error) {
-          throw error;
-        }
-        toast.success("Inspection ajoutée avec succès !");
+        if (error) throw error;
       }
+    },
+    onSuccess: () => {
+      toast.success(initialData ? "Inspection mise à jour avec succès !" : "Inspection ajoutée avec succès !");
+      queryClient.invalidateQueries({ queryKey: ['inspections'] });
       form.reset();
       onSuccess?.();
-    } catch (error: any) {
-      console.error("Erreur lors de l'opération sur l'inspection:", error.message);
-      toast.error("Erreur lors de l'opération sur l'inspection: " + error.message);
-    }
+    },
+    onError: (err) => {
+      console.error("Erreur lors de l'opération sur l'inspection:", err.message);
+      toast.error("Erreur lors de l'opération sur l'inspection: " + err.message);
+    },
+  });
+
+  function onSubmit(values: InspectionFormValues) {
+    addUpdateInspectionMutation.mutate(values);
   }
 
   return (
@@ -197,13 +208,13 @@ const InspectionForm: React.FC<InspectionFormProps> = ({ onSuccess, initialData 
                     <FormLabel>Véhicule Associé (Optionnel)</FormLabel>
                     <Select onValueChange={field.onChange} defaultValue={field.value || ""}>
                       <FormControl>
-                        <SelectTrigger>
+                        <SelectTrigger disabled={isLoadingVehicles}>
                           <SelectValue placeholder="Sélectionner un véhicule" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
                         <SelectItem value="">Aucun</SelectItem>
-                        {vehicles.map((vehicle) => (
+                        {vehicles?.map((vehicle) => (
                           <SelectItem key={vehicle.id} value={vehicle.id}>
                             {vehicle.make} {vehicle.model} ({vehicle.license_plate})
                           </SelectItem>
@@ -222,13 +233,13 @@ const InspectionForm: React.FC<InspectionFormProps> = ({ onSuccess, initialData 
                     <FormLabel>Conducteur Associé (Optionnel)</FormLabel>
                     <Select onValueChange={field.onChange} defaultValue={field.value || ""}>
                       <FormControl>
-                        <SelectTrigger>
+                        <SelectTrigger disabled={isLoadingDrivers}>
                           <SelectValue placeholder="Sélectionner un conducteur" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
                         <SelectItem value="">Aucun</SelectItem>
-                        {drivers.map((driver) => (
+                        {drivers?.map((driver) => (
                           <SelectItem key={driver.id} value={driver.id}>
                             {driver.first_name} {driver.last_name}
                           </SelectItem>
@@ -338,8 +349,8 @@ const InspectionForm: React.FC<InspectionFormProps> = ({ onSuccess, initialData 
                   </FormItem>
                 )}
               />
-              <CustomButton type="submit" className="w-full">
-                {initialData ? "Mettre à jour l'inspection" : "Ajouter l'inspection"}
+              <CustomButton type="submit" className="w-full" disabled={addUpdateInspectionMutation.isPending}>
+                {addUpdateInspectionMutation.isPending ? "Chargement..." : (initialData ? "Mettre à jour l'inspection" : "Ajouter l'inspection")}
               </CustomButton>
             </form>
           </Form>

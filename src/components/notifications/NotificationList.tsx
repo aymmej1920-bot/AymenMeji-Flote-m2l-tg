@@ -8,8 +8,9 @@ import { CustomButton } from '@/components/CustomButton';
 import { cn } from '@/lib/utils';
 import { formatDistanceToNow, parseISO } from 'date-fns';
 import { fr } from 'date-fns/locale';
-import { supabase, auth } from '@/lib/supabase'; // Import auth
+import { supabase, auth } from '@/lib/supabase';
 import { toast } from 'sonner';
+import { useMutation, useQueryClient } from '@tanstack/react-query'; // Import React Query hooks
 
 export type Notification = {
   id: string;
@@ -19,7 +20,7 @@ export type Notification = {
   status: 'unread' | 'read' | 'archived';
   related_entity_id?: string;
   related_entity_type?: string;
-  user_id: string; // Add user_id
+  user_id: string;
   created_at: string;
 };
 
@@ -29,6 +30,15 @@ interface NotificationListProps {
 }
 
 const NotificationList: React.FC<NotificationListProps> = ({ notifications, onNotificationUpdate }) => {
+  const queryClient = useQueryClient();
+
+  const getUserId = async () => {
+    const { data: { user } } = await auth.getUser();
+    if (!user) {
+      throw new Error("Vous devez être connecté pour effectuer cette action.");
+    }
+    return user.id;
+  };
 
   const getIcon = (type: Notification['type']) => {
     switch (type) {
@@ -40,48 +50,56 @@ const NotificationList: React.FC<NotificationListProps> = ({ notifications, onNo
     }
   };
 
-  const handleMarkAsRead = async (id: string) => {
-    const { data: { user } } = await auth.getUser();
-    if (!user) {
-      toast.error("Vous devez être connecté pour effectuer cette action.");
-      return;
-    }
-
-    const { error } = await supabase
-      .from('notifications')
-      .update({ status: 'read' })
-      .eq('id', id)
-      .eq('user_id', user.id); // Ensure user owns the record
-
-    if (error) {
-      console.error("Erreur lors de la mise à jour du statut de la notification:", error.message);
-      toast.error("Erreur: " + error.message);
-    } else {
+  // Mutation for marking a notification as read
+  const markAsReadMutation = useMutation<void, Error, string>({
+    mutationFn: async (id: string) => {
+      const userId = await getUserId();
+      const { error } = await supabase
+        .from('notifications')
+        .update({ status: 'read' })
+        .eq('id', id)
+        .eq('user_id', userId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
       toast.success("Notification marquée comme lue.");
+      queryClient.invalidateQueries({ queryKey: ['notifications'] });
       onNotificationUpdate();
-    }
+    },
+    onError: (err) => {
+      console.error("Erreur lors de la mise à jour du statut de la notification:", err.message);
+      toast.error("Erreur: " + err.message);
+    },
+  });
+
+  // Mutation for archiving a notification
+  const archiveMutation = useMutation<void, Error, string>({
+    mutationFn: async (id: string) => {
+      const userId = await getUserId();
+      const { error } = await supabase
+        .from('notifications')
+        .update({ status: 'archived' })
+        .eq('id', id)
+        .eq('user_id', userId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success("Notification archivée.");
+      queryClient.invalidateQueries({ queryKey: ['notifications'] });
+      onNotificationUpdate();
+    },
+    onError: (err) => {
+      console.error("Erreur lors de l'archivage de la notification:", err.message);
+      toast.error("Erreur: " + err.message);
+    },
+  });
+
+  const handleMarkAsRead = (id: string) => {
+    markAsReadMutation.mutate(id);
   };
 
-  const handleArchive = async (id: string) => {
-    const { data: { user } } = await auth.getUser();
-    if (!user) {
-      toast.error("Vous devez être connecté pour effectuer cette action.");
-      return;
-    }
-
-    const { error } = await supabase
-      .from('notifications')
-      .update({ status: 'archived' })
-      .eq('id', id)
-      .eq('user_id', user.id); // Ensure user owns the record
-
-    if (error) {
-      console.error("Erreur lors de l'archivage de la notification:", error.message);
-      toast.error("Erreur: " + error.message);
-    } else {
-      toast.success("Notification archivée.");
-      onNotificationUpdate();
-    }
+  const handleArchive = (id: string) => {
+    archiveMutation.mutate(id);
   };
 
   if (notifications.length === 0) {
@@ -127,13 +145,23 @@ const NotificationList: React.FC<NotificationListProps> = ({ notifications, onNo
             </div>
             <div className="flex-shrink-0 flex space-x-2">
               {notification.status === 'unread' && (
-                <CustomButton variant="secondary" size="sm" onClick={() => handleMarkAsRead(notification.id)}>
-                  Marquer comme lu
+                <CustomButton
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => handleMarkAsRead(notification.id)}
+                  disabled={markAsReadMutation.isPending}
+                >
+                  {markAsReadMutation.isPending ? "Lecture..." : "Marquer comme lu"}
                 </CustomButton>
               )}
               {notification.status !== 'archived' && (
-                <CustomButton variant="ghost" size="sm" onClick={() => handleArchive(notification.id)}>
-                  Archiver
+                <CustomButton
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => handleArchive(notification.id)}
+                  disabled={archiveMutation.isPending}
+                >
+                  {archiveMutation.isPending ? "Archivage..." : "Archiver"}
                 </CustomButton>
               )}
             </div>

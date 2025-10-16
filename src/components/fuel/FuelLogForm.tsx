@@ -16,7 +16,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { supabase, auth } from "@/lib/supabase"; // Import auth
+import { supabase, auth } from "@/lib/supabase";
 import { CustomCard, CustomCardContent, CustomCardHeader, CustomCardTitle } from "@/components/CustomCard";
 import { motion } from "framer-motion";
 import { FuelLog } from "./FuelLogColumns";
@@ -30,6 +30,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Button } from "@/components/ui/button";
 import { Vehicle } from "@/components/vehicles/VehicleColumns";
 import { Driver } from "@/components/drivers/DriverColumns";
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'; // Import React Query hooks
 
 // Schéma de validation pour un relevé de carburant
 const fuelLogFormSchema = z.object({
@@ -64,9 +65,7 @@ interface FuelLogFormProps {
 }
 
 const FuelLogForm: React.FC<FuelLogFormProps> = ({ onSuccess, initialData }) => {
-  const [vehicles, setVehicles] = useState<Vehicle[]>([]);
-  const [drivers, setDrivers] = useState<Driver[]>([]);
-
+  const queryClient = useQueryClient();
   const form = useForm<FuelLogFormValues>({
     resolver: zodResolver(fuelLogFormSchema),
     defaultValues: initialData ? {
@@ -92,38 +91,50 @@ const FuelLogForm: React.FC<FuelLogFormProps> = ({ onSuccess, initialData }) => 
     },
   });
 
-  useEffect(() => {
-    const fetchData = async () => {
-      const { data: { user } } = await auth.getUser();
-      if (!user) {
-        toast.error("Vous devez être connecté pour voir les données.");
-        return;
-      }
+  const getUserId = async () => {
+    const { data: { user } } = await auth.getUser();
+    if (!user) {
+      throw new Error("Vous devez être connecté pour voir les données.");
+    }
+    return user.id;
+  };
 
-      const { data: vehiclesData, error: vehiclesError } = await supabase
+  // Fetch vehicles using React Query
+  const { data: vehicles, isLoading: isLoadingVehicles, error: vehiclesError } = useQuery<Vehicle[], Error>({
+    queryKey: ['vehicles'],
+    queryFn: async () => {
+      const userId = await getUserId();
+      const { data, error } = await supabase
         .from('vehicles')
         .select('id, make, model, license_plate')
-        .eq('user_id', user.id); // Filter by user_id
-      if (vehiclesError) {
-        console.error("Erreur lors du chargement des véhicules:", vehiclesError.message);
-        toast.error("Erreur lors du chargement des véhicules: " + vehiclesError.message);
-      } else {
-        setVehicles(vehiclesData as Vehicle[]);
-      }
+        .eq('user_id', userId);
+      if (error) throw error;
+      return data as Vehicle[];
+    },
+  });
 
-      const { data: driversData, error: driversError } = await supabase
+  // Fetch drivers using React Query
+  const { data: drivers, isLoading: isLoadingDrivers, error: driversError } = useQuery<Driver[], Error>({
+    queryKey: ['drivers'],
+    queryFn: async () => {
+      const userId = await getUserId();
+      const { data, error } = await supabase
         .from('drivers')
         .select('id, first_name, last_name')
-        .eq('user_id', user.id); // Filter by user_id
-      if (driversError) {
-        console.error("Erreur lors du chargement des conducteurs:", driversError.message);
-        toast.error("Erreur lors du chargement des conducteurs: " + driversError.message);
-      } else {
-        setDrivers(driversData as Driver[]);
-      }
-    };
-    fetchData();
-  }, []);
+        .eq('user_id', userId);
+      if (error) throw error;
+      return data as Driver[];
+    },
+  });
+
+  useEffect(() => {
+    if (vehiclesError) {
+      toast.error("Erreur lors du chargement des véhicules: " + vehiclesError.message);
+    }
+    if (driversError) {
+      toast.error("Erreur lors du chargement des conducteurs: " + driversError.message);
+    }
+  }, [vehiclesError, driversError]);
 
   useEffect(() => {
     if (initialData) {
@@ -153,12 +164,11 @@ const FuelLogForm: React.FC<FuelLogFormProps> = ({ onSuccess, initialData }) => 
     }
   }, [initialData, form]);
 
-  async function onSubmit(values: FuelLogFormValues) {
-    try {
+  const addUpdateFuelLogMutation = useMutation<void, Error, FuelLogFormValues>({
+    mutationFn: async (values: FuelLogFormValues) => {
       const { data: { user } } = await auth.getUser();
       if (!user) {
-        toast.error("Vous devez être connecté pour effectuer cette action.");
-        return;
+        throw new Error("Vous devez être connecté pour effectuer cette action.");
       }
 
       const payload = {
@@ -168,7 +178,7 @@ const FuelLogForm: React.FC<FuelLogFormProps> = ({ onSuccess, initialData }) => 
         driver_id: values.driver_id || null,
         location: values.location === "" ? null : values.location,
         notes: values.notes === "" ? null : values.notes,
-        user_id: user.id, // Add user_id to the payload
+        user_id: user.id,
       };
 
       if (initialData?.id) {
@@ -177,28 +187,29 @@ const FuelLogForm: React.FC<FuelLogFormProps> = ({ onSuccess, initialData }) => 
           .from('fuel_logs')
           .update(updateValues)
           .eq('id', initialData.id)
-          .eq('user_id', user.id); // Ensure user owns the record
-
-        if (error) {
-          throw error;
-        }
-        toast.success("Relevé de carburant mis à jour avec succès !");
+          .eq('user_id', user.id);
+        if (error) throw error;
       } else {
-        const { data, error } = await supabase
+        const { error } = await supabase
           .from('fuel_logs')
           .insert([payload]);
-
-        if (error) {
-          throw error;
-        }
-        toast.success("Relevé de carburant ajouté avec succès !");
+        if (error) throw error;
       }
+    },
+    onSuccess: () => {
+      toast.success(initialData ? "Relevé de carburant mis à jour avec succès !" : "Relevé de carburant ajouté avec succès !");
+      queryClient.invalidateQueries({ queryKey: ['fuelLogs'] });
       form.reset();
       onSuccess?.();
-    } catch (error: any) {
-      console.error("Erreur lors de l'opération sur le relevé de carburant:", error.message);
-      toast.error("Erreur lors de l'opération sur le relevé de carburant: " + error.message);
-    }
+    },
+    onError: (err) => {
+      console.error("Erreur lors de l'opération sur le relevé de carburant:", err.message);
+      toast.error("Erreur lors de l'opération sur le relevé de carburant: " + err.message);
+    },
+  });
+
+  function onSubmit(values: FuelLogFormValues) {
+    addUpdateFuelLogMutation.mutate(values);
   }
 
   return (
@@ -222,12 +233,12 @@ const FuelLogForm: React.FC<FuelLogFormProps> = ({ onSuccess, initialData }) => 
                     <FormLabel>Véhicule</FormLabel>
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                       <FormControl>
-                        <SelectTrigger>
+                        <SelectTrigger disabled={isLoadingVehicles}>
                           <SelectValue placeholder="Sélectionner un véhicule" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {vehicles.map((vehicle) => (
+                        {vehicles?.map((vehicle) => (
                           <SelectItem key={vehicle.id} value={vehicle.id}>
                             {vehicle.make} {vehicle.model} ({vehicle.license_plate})
                           </SelectItem>
@@ -246,13 +257,13 @@ const FuelLogForm: React.FC<FuelLogFormProps> = ({ onSuccess, initialData }) => 
                     <FormLabel>Conducteur (Optionnel)</FormLabel>
                     <Select onValueChange={field.onChange} defaultValue={field.value || ""}>
                       <FormControl>
-                        <SelectTrigger>
+                        <SelectTrigger disabled={isLoadingDrivers}>
                           <SelectValue placeholder="Sélectionner un conducteur" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
                         <SelectItem value="">Aucun</SelectItem>
-                        {drivers.map((driver) => (
+                        {drivers?.map((driver) => (
                           <SelectItem key={driver.id} value={driver.id}>
                             {driver.first_name} {driver.last_name}
                           </SelectItem>
@@ -390,8 +401,8 @@ const FuelLogForm: React.FC<FuelLogFormProps> = ({ onSuccess, initialData }) => 
                   </FormItem>
                 )}
               />
-              <CustomButton type="submit" className="w-full">
-                {initialData ? "Mettre à jour le relevé" : "Ajouter le relevé"}
+              <CustomButton type="submit" className="w-full" disabled={addUpdateFuelLogMutation.isPending}>
+                {addUpdateFuelLogMutation.isPending ? "Chargement..." : (initialData ? "Mettre à jour le relevé" : "Ajouter le relevé")}
               </CustomButton>
             </form>
           </Form>
