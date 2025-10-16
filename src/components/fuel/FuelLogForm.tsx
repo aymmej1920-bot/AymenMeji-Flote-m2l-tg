@@ -255,14 +255,14 @@ const FuelLogForm: React.FC<FuelLogFormProps> = ({ onSuccess, initialData }) => 
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Conducteur (Optionnel)</FormLabel>
-                    <Select onValueChange={(value) => field.onChange(value === "none-selected" ? null : value)} defaultValue={field.value || "none-selected"}>
+                    <Select onValueChange={(value) => field.onChange(value === "" ? null : value)} value={field.value || ""}>
                       <FormControl>
                         <SelectTrigger disabled={isLoadingDrivers}>
                           <SelectValue placeholder="Sélectionner un conducteur" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="none-selected">Aucun</SelectItem>
+                        <SelectItem value="">Aucun</SelectItem>
                         {drivers?.map((driver) => (
                           <SelectItem key={driver.id} value={driver.id}>
                             {driver.first_name} {driver.last_name}

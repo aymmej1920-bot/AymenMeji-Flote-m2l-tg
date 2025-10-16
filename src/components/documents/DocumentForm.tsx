@@ -345,14 +345,14 @@ const DocumentForm: React.FC<DocumentFormProps> = ({ onSuccess, initialData }) =
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Véhicule Associé (Optionnel)</FormLabel>
-                    <Select onValueChange={(value) => field.onChange(value === "none-selected" ? null : value)} defaultValue={field.value || "none-selected"}>
+                    <Select onValueChange={(value) => field.onChange(value === "" ? null : value)} value={field.value || ""}>
                       <FormControl>
                         <SelectTrigger disabled={isLoadingVehicles}>
                           <SelectValue placeholder="Sélectionner un véhicule" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="none-selected">Aucun</SelectItem>
+                        <SelectItem value="">Aucun</SelectItem>
                         {vehicles?.map((vehicle) => (
                           <SelectItem key={vehicle.id} value={vehicle.id}>
                             {vehicle.make} {vehicle.model} ({vehicle.license_plate})
@@ -370,14 +370,14 @@ const DocumentForm: React.FC<DocumentFormProps> = ({ onSuccess, initialData }) =
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Conducteur Associé (Optionnel)</FormLabel>
-                    <Select onValueChange={(value) => field.onChange(value === "none-selected" ? null : value)} defaultValue={field.value || "none-selected"}>
+                    <Select onValueChange={(value) => field.onChange(value === "" ? null : value)} value={field.value || ""}>
                       <FormControl>
                         <SelectTrigger disabled={isLoadingDrivers}>
                           <SelectValue placeholder="Sélectionner un conducteur" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="none-selected">Aucun</SelectItem>
+                        <SelectItem value="">Aucun</SelectItem>
                         {drivers?.map((driver) => (
                           <SelectItem key={driver.id} value={driver.id}>
                             {driver.first_name} {driver.last_name}
