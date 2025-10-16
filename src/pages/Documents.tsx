@@ -36,7 +36,8 @@ const Documents: React.FC = () => {
     if (!user) {
       throw new Error("Vous devez être connecté pour voir les documents.");
     }
-    return user.id;
+    console.log("Documents Page: Authenticated user ID:", user?.id);
+    return user?.id;
   };
 
   // Fetch documents using React Query
@@ -44,10 +45,17 @@ const Documents: React.FC = () => {
     queryKey: ['documents'],
     queryFn: async () => {
       const userId = await getUserId();
+      if (!userId) {
+        throw new Error("User ID is not available.");
+      }
+      const selectString = 'id,title,document_type,issue_date,expiry_date,file_url,vehicle_id,driver_id,notes,created_at,user_id';
+      console.log("Documents Page: Supabase select string for documents:", selectString);
+
       const { data, error } = await supabase
         .from('documents')
-        .select('id') // Simplified for debugging
-        .eq('user_id', userId); // Removed order clause for debugging
+        .select(selectString)
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false });
 
       if (error) throw error;
       return data as Document[];
@@ -64,6 +72,9 @@ const Documents: React.FC = () => {
   const deleteDocumentMutation = useMutation<void, Error, string>({
     mutationFn: async (documentId: string) => {
       const userId = await getUserId();
+      if (!userId) {
+        throw new Error("User ID is not available.");
+      }
       const { error } = await supabase
         .from('documents')
         .delete()

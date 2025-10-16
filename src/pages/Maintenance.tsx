@@ -36,7 +36,8 @@ const Maintenance: React.FC = () => {
     if (!user) {
       throw new Error("Vous devez être connecté pour voir les enregistrements de maintenance.");
     }
-    return user.id;
+    console.log("Maintenance Page: Authenticated user ID:", user?.id);
+    return user?.id;
   };
 
   // Fetch maintenance records using React Query
@@ -44,10 +45,17 @@ const Maintenance: React.FC = () => {
     queryKey: ['maintenanceRecords'],
     queryFn: async () => {
       const userId = await getUserId();
+      if (!userId) {
+        throw new Error("User ID is not available.");
+      }
+      const selectString = 'id,vehicle_id,description,maintenance_date,cost,status,notes,created_at,user_id';
+      console.log("Maintenance Page: Supabase select string for maintenance records:", selectString);
+
       const { data, error } = await supabase
         .from('maintenance_records')
-        .select('id') // Simplified for debugging
-        .eq('user_id', userId); // Removed order clause for debugging
+        .select(selectString)
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false });
 
       if (error) throw error;
       return data as MaintenanceRecord[];
@@ -64,6 +72,9 @@ const Maintenance: React.FC = () => {
   const deleteRecordMutation = useMutation<void, Error, string>({
     mutationFn: async (recordId: string) => {
       const userId = await getUserId();
+      if (!userId) {
+        throw new Error("User ID is not available.");
+      }
       const { error } = await supabase
         .from('maintenance_records')
         .delete()

@@ -18,7 +18,8 @@ const Reports: React.FC = () => {
     if (!user) {
       throw new Error("Vous devez être connecté pour voir les rapports.");
     }
-    return user.id;
+    console.log("Reports Page: Authenticated user ID:", user?.id);
+    return user?.id;
   };
 
   // Fetch total fuel cost
@@ -26,9 +27,14 @@ const Reports: React.FC = () => {
     queryKey: ['totalFuelCost'],
     queryFn: async () => {
       const userId = await getUserId();
+      if (!userId) {
+        throw new Error("User ID is not available.");
+      }
+      const selectString = 'cost,user_id';
+      console.log("Reports Page: Supabase select string for total fuel cost:", selectString);
       const { data, error } = await supabase
         .from('fuel_logs')
-        .select('cost')
+        .select(selectString)
         .eq('user_id', userId);
       if (error) throw error;
       return data.reduce((sum, log) => sum + log.cost, 0);
@@ -40,9 +46,14 @@ const Reports: React.FC = () => {
     queryKey: ['maintenanceTrends'],
     queryFn: async () => {
       const userId = await getUserId();
+      if (!userId) {
+        throw new Error("User ID is not available.");
+      }
+      const selectString = 'id,user_id,status';
+      console.log("Reports Page: Supabase select string for maintenance trends:", selectString);
       const { count, error } = await supabase
         .from('maintenance_records')
-        .select('*', { count: 'exact' })
+        .select(selectString, { count: 'exact' })
         .eq('user_id', userId)
         .eq('status', 'En cours'); // Example: count ongoing maintenance
       if (error) throw error;
@@ -55,15 +66,21 @@ const Reports: React.FC = () => {
     queryKey: ['vehicleUtilization'],
     queryFn: async () => {
       const userId = await getUserId();
+      if (!userId) {
+        throw new Error("User ID is not available.");
+      }
+      const vehiclesSelectString = 'id,user_id,status';
+      console.log("Reports Page: Supabase select string for total vehicles (utilization):", vehiclesSelectString);
       const { count: totalVehicles, error: totalVehiclesError } = await supabase
         .from('vehicles')
-        .select('*', { count: 'exact' })
+        .select(vehiclesSelectString, { count: 'exact' })
         .eq('user_id', userId);
       if (totalVehiclesError) throw totalVehiclesError;
 
+      console.log("Reports Page: Supabase select string for active vehicles (utilization):", vehiclesSelectString);
       const { count: activeVehicles, error: activeVehiclesError } = await supabase
         .from('vehicles')
-        .select('*', { count: 'exact' })
+        .select(vehiclesSelectString, { count: 'exact' })
         .eq('user_id', userId)
         .eq('status', 'Actif');
       if (activeVehiclesError) throw activeVehiclesError;

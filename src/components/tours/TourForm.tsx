@@ -91,7 +91,7 @@ const TourForm: React.FC<TourFormProps> = ({ onSuccess, initialData }) => {
       const userId = await getUserId();
       const { data, error } = await supabase
         .from('vehicles')
-        .select('id') // Simplified for debugging
+        .select('id,make,model,license_plate')
         .eq('user_id', userId);
       if (error) throw error;
       return data as Vehicle[];
@@ -105,7 +105,7 @@ const TourForm: React.FC<TourFormProps> = ({ onSuccess, initialData }) => {
       const userId = await getUserId();
       const { data, error } = await supabase
         .from('drivers')
-        .select('id') // Simplified for debugging
+        .select('id,first_name,last_name')
         .eq('user_id', userId);
       if (error) throw error;
       return data as Driver[];
@@ -313,7 +313,7 @@ const TourForm: React.FC<TourFormProps> = ({ onSuccess, initialData }) => {
                         <SelectItem value="null">Aucun</SelectItem>
                         {vehicles?.map((vehicle) => (
                           <SelectItem key={vehicle.id} value={vehicle.id}>
-                            {vehicle.id} {/* Display ID for debugging */}
+                            {vehicle.make} {vehicle.model} ({vehicle.license_plate})
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -338,7 +338,7 @@ const TourForm: React.FC<TourFormProps> = ({ onSuccess, initialData }) => {
                         <SelectItem value="null">Aucun</SelectItem>
                         {drivers?.map((driver) => (
                           <SelectItem key={driver.id} value={driver.id}>
-                            {driver.id} {/* Display ID for debugging */}
+                            {driver.first_name} {driver.last_name}
                           </SelectItem>
                         ))}
                       </SelectContent>

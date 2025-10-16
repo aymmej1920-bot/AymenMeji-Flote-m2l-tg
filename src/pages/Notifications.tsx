@@ -18,7 +18,8 @@ const Notifications: React.FC = () => {
     if (!user) {
       throw new Error("Vous devez être connecté pour voir les notifications.");
     }
-    return user.id;
+    console.log("Notifications Page: Authenticated user ID:", user?.id);
+    return user?.id;
   };
 
   // Fetch notifications using React Query
@@ -26,10 +27,17 @@ const Notifications: React.FC = () => {
     queryKey: ['notifications'],
     queryFn: async () => {
       const userId = await getUserId();
+      if (!userId) {
+        throw new Error("User ID is not available.");
+      }
+      const selectString = 'id,title,message,type,status,related_entity_id,related_entity_type,user_id,created_at';
+      console.log("Notifications Page: Supabase select string for notifications:", selectString);
+
       const { data, error } = await supabase
         .from('notifications')
-        .select('id') // Simplified for debugging
-        .eq('user_id', userId); // Removed order clause for debugging
+        .select(selectString)
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false });
 
       if (error) throw error;
       return data as Notification[];
@@ -46,6 +54,9 @@ const Notifications: React.FC = () => {
   const createTestNotificationMutation = useMutation<void, Error, void>({
     mutationFn: async () => {
       const userId = await getUserId();
+      if (!userId) {
+        throw new Error("User ID is not available.");
+      }
       const { error } = await supabase
         .from('notifications')
         .insert([

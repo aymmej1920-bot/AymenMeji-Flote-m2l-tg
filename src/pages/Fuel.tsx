@@ -36,7 +36,8 @@ const Fuel: React.FC = () => {
     if (!user) {
       throw new Error("Vous devez être connecté pour voir les relevés de carburant.");
     }
-    return user.id;
+    console.log("Fuel Page: Authenticated user ID:", user?.id);
+    return user?.id;
   };
 
   // Fetch fuel logs using React Query
@@ -44,10 +45,17 @@ const Fuel: React.FC = () => {
     queryKey: ['fuelLogs'],
     queryFn: async () => {
       const userId = await getUserId();
+      if (!userId) {
+        throw new Error("User ID is not available.");
+      }
+      const selectString = 'id,vehicle_id,driver_id,fill_date,quantity_liters,cost,odometer_reading,fuel_type,location,notes,created_at,user_id';
+      console.log("Fuel Page: Supabase select string for fuel logs:", selectString);
+
       const { data, error } = await supabase
         .from('fuel_logs')
-        .select('id') // Simplified for debugging
-        .eq('user_id', userId); // Removed order clause for debugging
+        .select(selectString)
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false });
 
       if (error) throw error;
       return data as FuelLog[];
@@ -64,6 +72,9 @@ const Fuel: React.FC = () => {
   const deleteFuelLogMutation = useMutation<void, Error, string>({
     mutationFn: async (logId: string) => {
       const userId = await getUserId();
+      if (!userId) {
+        throw new Error("User ID is not available.");
+      }
       const { error } = await supabase
         .from('fuel_logs')
         .delete()

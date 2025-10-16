@@ -36,7 +36,8 @@ const Inspections: React.FC = () => {
     if (!user) {
       throw new Error("Vous devez être connecté pour voir les inspections.");
     }
-    return user.id;
+    console.log("Inspections Page: Authenticated user ID:", user?.id);
+    return user?.id;
   };
 
   // Fetch inspections using React Query
@@ -44,10 +45,17 @@ const Inspections: React.FC = () => {
     queryKey: ['inspections'],
     queryFn: async () => {
       const userId = await getUserId();
+      if (!userId) {
+        throw new Error("User ID is not available.");
+      }
+      const selectString = 'id,vehicle_id,driver_id,inspection_date,inspection_type,status,notes,created_at,user_id';
+      console.log("Inspections Page: Supabase select string for inspections:", selectString);
+
       const { data, error } = await supabase
         .from('inspections')
-        .select('id') // Simplified for debugging
-        .eq('user_id', userId); // Removed order clause for debugging
+        .select(selectString)
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false });
 
       if (error) throw error;
       return data as Inspection[];
@@ -64,6 +72,9 @@ const Inspections: React.FC = () => {
   const deleteInspectionMutation = useMutation<void, Error, string>({
     mutationFn: async (inspectionId: string) => {
       const userId = await getUserId();
+      if (!userId) {
+        throw new Error("User ID is not available.");
+      }
       const { error } = await supabase
         .from('inspections')
         .delete()

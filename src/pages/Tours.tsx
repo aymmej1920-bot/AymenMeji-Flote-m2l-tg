@@ -36,7 +36,8 @@ const Tours: React.FC = () => {
     if (!user) {
       throw new Error("Vous devez être connecté pour voir les tournées.");
     }
-    return user.id;
+    console.log("Tours Page: Authenticated user ID:", user?.id);
+    return user?.id;
   };
 
   // Fetch tours using React Query
@@ -44,10 +45,17 @@ const Tours: React.FC = () => {
     queryKey: ['tours'],
     queryFn: async () => {
       const userId = await getUserId();
+      if (!userId) {
+        throw new Error("User ID is not available.");
+      }
+      const selectString = 'id,name,start_date,end_date,vehicle_id,driver_id,status,notes,created_at,user_id';
+      console.log("Tours Page: Supabase select string for tours:", selectString);
+
       const { data, error } = await supabase
         .from('tours')
-        .select('id') // Simplified for debugging
-        .eq('user_id', userId); // Removed order clause for debugging
+        .select(selectString)
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false });
 
       if (error) throw error;
       return data as Tour[];
@@ -64,6 +72,9 @@ const Tours: React.FC = () => {
   const deleteTourMutation = useMutation<void, Error, string>({
     mutationFn: async (tourId: string) => {
       const userId = await getUserId();
+      if (!userId) {
+        throw new Error("User ID is not available.");
+      }
       const { error } = await supabase
         .from('tours')
         .delete()

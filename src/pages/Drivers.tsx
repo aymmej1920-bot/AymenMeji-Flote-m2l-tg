@@ -36,7 +36,8 @@ const Drivers: React.FC = () => {
     if (!user) {
       throw new Error("Vous devez être connecté pour voir les conducteurs.");
     }
-    return user.id;
+    console.log("Drivers Page: Authenticated user ID:", user?.id);
+    return user?.id;
   };
 
   // Fetch drivers using React Query
@@ -44,10 +45,17 @@ const Drivers: React.FC = () => {
     queryKey: ['drivers'],
     queryFn: async () => {
       const userId = await getUserId();
+      if (!userId) {
+        throw new Error("User ID is not available.");
+      }
+      const selectString = 'id,first_name,last_name,license_number,phone_number,email,hire_date,status,created_at,user_id';
+      console.log("Drivers Page: Supabase select string for drivers:", selectString);
+
       const { data, error } = await supabase
         .from('drivers')
-        .select('id') // Simplified for debugging
-        .eq('user_id', userId); // Removed order clause for debugging
+        .select(selectString)
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false });
 
       if (error) throw error;
       return data as Driver[];
@@ -64,6 +72,9 @@ const Drivers: React.FC = () => {
   const deleteDriverMutation = useMutation<void, Error, string>({
     mutationFn: async (driverId: string) => {
       const userId = await getUserId();
+      if (!userId) {
+        throw new Error("User ID is not available.");
+      }
       const { error } = await supabase
         .from('drivers')
         .delete()
