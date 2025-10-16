@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { CustomButton } from '@/components/CustomButton';
-import { PlusCircle, Fuel as FuelIcon } from 'lucide-react';
+import { PlusCircle } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from '@/components/ui/dialog';
 import FuelLogForm from '@/components/fuel/FuelLogForm';
 import { DataTable } from '@/components/ui/data-table';

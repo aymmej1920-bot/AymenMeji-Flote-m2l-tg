@@ -21,16 +21,16 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
     const getUser = async () => {
       const { data: { user } } = await auth.getUser();
       if (user) {
-        setUserEmail(user.email);
+        setUserEmail(user.email ?? null);
       } else {
         setUserEmail(null);
       }
     };
     getUser();
 
-    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
+    const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
       if (session?.user) {
-        setUserEmail(session.user.email);
+        setUserEmail(session.user.email ?? null);
       } else {
         setUserEmail(null);
       }

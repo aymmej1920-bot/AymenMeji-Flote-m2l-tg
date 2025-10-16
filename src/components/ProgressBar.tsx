@@ -1,7 +1,6 @@
 "use client";
 
 import React from 'react';
-import { Progress } from "@/components/ui/progress";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 

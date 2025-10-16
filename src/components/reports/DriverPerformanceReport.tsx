@@ -1,13 +1,12 @@
 "use client";
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { supabase, auth } from '@/lib/supabase';
 import { toast } from 'sonner';
 import { CustomCard, CustomCardContent, CustomCardHeader, CustomCardTitle } from '@/components/CustomCard';
 import { Skeleton } from '@/components/ui/skeleton';
 import { DataTable } from '@/components/ui/data-table';
 import { ColumnDef } from "@tanstack/react-table";
-import { motion } from 'framer-motion';
 import { useQuery } from '@tanstack/react-query'; // Import useQuery
 
 interface DriverPerformance {

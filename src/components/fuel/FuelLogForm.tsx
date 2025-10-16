@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -346,7 +346,7 @@ const FuelLogForm: React.FC<FuelLogFormProps> = ({ onSuccess, initialData }) => 
                   <FormItem>
                     <FormLabel>Lecture de l'Odomètre (km)</FormLabel>
                     <FormControl>
-                      <Input type="number" placeholder="Ex: 125000" {...field} onChange={event => field.onChange(parseInt(event.target.value))} />
+                      <Input type="number" placeholder="Ex: 125000" {...field} value={field.value ?? ""} onChange={event => field.onChange(parseInt(event.target.value))} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

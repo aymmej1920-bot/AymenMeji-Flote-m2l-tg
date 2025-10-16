@@ -1,14 +1,13 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
-import { CustomCard, CustomCardHeader, CustomCardTitle, CustomCardContent } from '@/components/CustomCard';
-import { Bell, PlusCircle } from 'lucide-react';
-import { motion } from 'framer-motion';
+import React, { useEffect } from 'react';
 import NotificationList, { Notification } from '@/components/notifications/NotificationList';
 import { CustomButton } from '@/components/CustomButton';
 import { supabase, auth } from '@/lib/supabase';
 import { toast } from 'sonner';
 import { Skeleton } from '@/components/ui/skeleton';
+import { motion } from 'framer-motion';
+import { PlusCircle } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'; // Import React Query hooks
 
 const Notifications: React.FC = () => {

@@ -13,7 +13,7 @@ const Login: React.FC = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
+    const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
       if (session) {
         // User is signed in, redirect to dashboard
         toast.success("Connexion réussie ! Redirection vers le tableau de bord.");

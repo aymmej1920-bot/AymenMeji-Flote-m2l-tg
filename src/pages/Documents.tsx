@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { CustomButton } from '@/components/CustomButton';
-import { PlusCircle, FileText } from 'lucide-react';
+import { PlusCircle } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from '@/components/ui/dialog';
 import DocumentForm from '@/components/documents/DocumentForm';
 import { DataTable } from '@/components/ui/data-table';

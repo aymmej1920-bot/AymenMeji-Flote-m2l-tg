@@ -1,9 +1,9 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { CustomCard, CustomCardHeader, CustomCardTitle, CustomCardContent } from '@/components/CustomCard';
 import ProgressBar from '@/components/ProgressBar';
-import { Car, Users, Wrench, Fuel } from 'lucide-react';
+import { Car, Users, Wrench } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { supabase, auth } from '@/lib/supabase';
 import { toast } from 'sonner';
