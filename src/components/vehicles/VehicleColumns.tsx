@@ -2,6 +2,7 @@
 
 import { ColumnDef } from "@tanstack/react-table";
 import { MoreHorizontal } from "lucide-react";
+import { motion } from "framer-motion"; // Import motion
 
 import { Button } from "@/components/ui/button";
 import {
@@ -69,17 +70,24 @@ export const columns: ColumnDef<Vehicle>[] = [
               <MoreHorizontal className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuItem
-              onClick={() => navigator.clipboard.writeText(vehicle.id)}
+          <DropdownMenuContent align="end" asChild>
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              transition={{ duration: 0.1 }}
             >
-              Copier l'ID du véhicule
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem>Voir les détails</DropdownMenuItem>
-            <DropdownMenuItem>Modifier</DropdownMenuItem>
-            <DropdownMenuItem className="text-destructive">Supprimer</DropdownMenuItem>
+              <DropdownMenuLabel>Actions</DropdownMenuLabel>
+              <DropdownMenuItem
+                onClick={() => navigator.clipboard.writeText(vehicle.id)}
+              >
+                Copier l'ID du véhicule
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem>Voir les détails</DropdownMenuItem>
+              <DropdownMenuItem>Modifier</DropdownMenuItem>
+              <DropdownMenuItem className="text-destructive">Supprimer</DropdownMenuItem>
+            </motion.div>
           </DropdownMenuContent>
         </DropdownMenu>
       );
