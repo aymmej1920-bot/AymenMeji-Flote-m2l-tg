@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect } from "react"; // Import useEffect
+import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -15,10 +15,10 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-import { supabase } from "@/lib/supabase";
+import { supabase, auth } from "@/lib/supabase";
 import { CustomCard, CustomCardContent, CustomCardHeader, CustomCardTitle } from "@/components/CustomCard";
 import { motion } from "framer-motion";
-import { Vehicle } from "./VehicleColumns"; // Import Vehicle type
+import { Vehicle } from "./VehicleColumns";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { CalendarIcon } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
@@ -26,10 +26,11 @@ import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { Button } from "@/components/ui/button";
+import { useMutation, useQueryClient } from '@tanstack/react-query'; // Import React Query hooks
 
 // Schéma de validation pour un véhicule
 const vehicleFormSchema = z.object({
-  id: z.string().optional(), // Add id for editing
+  id: z.string().optional(),
   make: z.string().min(2, {
     message: "Le fabricant doit contenir au moins 2 caractères.",
   }),
@@ -50,24 +51,25 @@ const vehicleFormSchema = z.object({
   }).optional(),
   fuel_type: z.string().optional(),
   status: z.string().optional(),
-  next_maintenance_date: z.date().optional().nullable(), // New field
+  next_maintenance_date: z.date().optional().nullable(),
 });
 
 type VehicleFormValues = z.infer<typeof vehicleFormSchema>;
 
 interface VehicleFormProps {
   onSuccess?: () => void;
-  initialData?: Vehicle; // Use Vehicle type for initialData
+  initialData?: Vehicle;
 }
 
 const VehicleForm: React.FC<VehicleFormProps> = ({ onSuccess, initialData }) => {
+  const queryClient = useQueryClient();
   const form = useForm<VehicleFormValues>({
     resolver: zodResolver(vehicleFormSchema),
     defaultValues: initialData ? {
       ...initialData,
-      year: initialData.year, // Ensure year is number
-      mileage: initialData.mileage || 0, // Ensure mileage is number
-      next_maintenance_date: initialData.next_maintenance_date ? new Date(initialData.next_maintenance_date) : null, // New field
+      year: initialData.year,
+      mileage: initialData.mileage || 0,
+      next_maintenance_date: initialData.next_maintenance_date ? new Date(initialData.next_maintenance_date) : null,
     } : {
       make: "",
       model: "",
@@ -77,11 +79,10 @@ const VehicleForm: React.FC<VehicleFormProps> = ({ onSuccess, initialData }) => 
       mileage: 0,
       fuel_type: "Essence",
       status: "Actif",
-      next_maintenance_date: null, // New field
+      next_maintenance_date: null,
     },
   });
 
-  // Reset form with initialData when it changes (for edit mode)
   useEffect(() => {
     if (initialData) {
       form.reset({
@@ -105,43 +106,48 @@ const VehicleForm: React.FC<VehicleFormProps> = ({ onSuccess, initialData }) => 
     }
   }, [initialData, form]);
 
+  const addUpdateVehicleMutation = useMutation<void, Error, VehicleFormValues>({
+    mutationFn: async (values: VehicleFormValues) => {
+      const { data: { user } } = await auth.getUser();
+      if (!user) {
+        throw new Error("Vous devez être connecté pour effectuer cette action.");
+      }
 
-  async function onSubmit(values: VehicleFormValues) {
-    try {
       const payload = {
         ...values,
         next_maintenance_date: values.next_maintenance_date ? format(values.next_maintenance_date, "yyyy-MM-dd") : null,
+        user_id: user.id,
       };
 
       if (initialData?.id) {
-        // Update existing vehicle
-        const { id, ...updateValues } = payload; // Exclude id from update payload
+        const { id, ...updateValues } = payload;
         const { error } = await supabase
           .from('vehicles')
           .update(updateValues)
-          .eq('id', initialData.id);
-
-        if (error) {
-          throw error;
-        }
-        toast.success("Véhicule mis à jour avec succès !");
+          .eq('id', initialData.id)
+          .eq('user_id', user.id);
+        if (error) throw error;
       } else {
-        // Add new vehicle
-        const { data, error } = await supabase
+        const { error } = await supabase
           .from('vehicles')
           .insert([payload]);
-
-        if (error) {
-          throw error;
-        }
-        toast.success("Véhicule ajouté avec succès !");
+        if (error) throw error;
       }
+    },
+    onSuccess: () => {
+      toast.success(initialData ? "Véhicule mis à jour avec succès !" : "Véhicule ajouté avec succès !");
+      queryClient.invalidateQueries({ queryKey: ['vehicles'] });
       form.reset();
       onSuccess?.();
-    } catch (error: any) {
-      console.error("Erreur lors de l'opération sur le véhicule:", error.message);
-      toast.error("Erreur lors de l'opération sur le véhicule: " + error.message);
-    }
+    },
+    onError: (err) => {
+      console.error("Erreur lors de l'opération sur le véhicule:", err.message);
+      toast.error("Erreur lors de l'opération sur le véhicule: " + err.message);
+    },
+  });
+
+  function onSubmit(values: VehicleFormValues) {
+    addUpdateVehicleMutation.mutate(values);
   }
 
   return (
@@ -274,8 +280,8 @@ const VehicleForm: React.FC<VehicleFormProps> = ({ onSuccess, initialData }) => 
                   </FormItem>
                 )}
               />
-              <CustomButton type="submit" className="w-full">
-                {initialData ? "Mettre à jour le véhicule" : "Ajouter le véhicule"}
+              <CustomButton type="submit" className="w-full" disabled={addUpdateVehicleMutation.isPending}>
+                {addUpdateVehicleMutation.isPending ? "Chargement..." : (initialData ? "Mettre à jour le véhicule" : "Ajouter le véhicule")}
               </CustomButton>
             </form>
           </Form>

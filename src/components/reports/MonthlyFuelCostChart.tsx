@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { supabase } from '@/lib/supabase';
+import { supabase, auth } from '@/lib/supabase'; // Import auth
 import { toast } from 'sonner';
 import { CustomCard, CustomCardContent, CustomCardHeader, CustomCardTitle } from '@/components/CustomCard';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -21,9 +21,17 @@ const MonthlyFuelCostChart: React.FC = () => {
   useEffect(() => {
     const fetchFuelCosts = async () => {
       setLoading(true);
+      const { data: { user } } = await auth.getUser();
+      if (!user) {
+        toast.error("Vous devez être connecté pour voir les coûts de carburant.");
+        setLoading(false);
+        return;
+      }
+
       const { data: fuelLogs, error } = await supabase
         .from('fuel_logs')
         .select('fill_date, cost')
+        .eq('user_id', user.id) // Filter by user_id
         .order('fill_date', { ascending: true });
 
       if (error) {

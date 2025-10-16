@@ -6,7 +6,7 @@ import { Bell, PlusCircle } from 'lucide-react';
 import { motion } from 'framer-motion';
 import NotificationList, { Notification } from '@/components/notifications/NotificationList'; // Import NotificationList and Notification type
 import { CustomButton } from '@/components/CustomButton';
-import { supabase } from '@/lib/supabase';
+import { supabase, auth } from '@/lib/supabase'; // Import auth
 import { toast } from 'sonner';
 import { Skeleton } from '@/components/ui/skeleton';
 
@@ -16,9 +16,17 @@ const Notifications: React.FC = () => {
 
   const fetchNotifications = async () => {
     setLoading(true);
+    const { data: { user } } = await auth.getUser();
+    if (!user) {
+      toast.error("Vous devez être connecté pour voir les notifications.");
+      setLoading(false);
+      return;
+    }
+
     const { data, error } = await supabase
       .from('notifications')
       .select('*')
+      .eq('user_id', user.id) // Filter by user_id
       .order('created_at', { ascending: false });
 
     if (error) {
@@ -36,6 +44,12 @@ const Notifications: React.FC = () => {
   }, []);
 
   const handleCreateTestNotification = async () => {
+    const { data: { user } } = await auth.getUser();
+    if (!user) {
+      toast.error("Vous devez être connecté pour créer une notification de test.");
+      return;
+    }
+
     const { error } = await supabase
       .from('notifications')
       .insert([
@@ -45,7 +59,8 @@ const Notifications: React.FC = () => {
           type: "warning",
           status: "unread",
           related_entity_type: "maintenance",
-          related_entity_id: "a1b2c3d4-e5f6-7890-1234-567890abcdef" // Example ID
+          related_entity_id: "a1b2c3d4-e5f6-7890-1234-567890abcdef", // Example ID
+          user_id: user.id, // Assign to current user
         }
       ]);
 

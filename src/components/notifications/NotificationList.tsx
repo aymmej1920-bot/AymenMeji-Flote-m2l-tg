@@ -8,7 +8,7 @@ import { CustomButton } from '@/components/CustomButton';
 import { cn } from '@/lib/utils';
 import { formatDistanceToNow, parseISO } from 'date-fns';
 import { fr } from 'date-fns/locale';
-import { supabase } from '@/lib/supabase';
+import { supabase, auth } from '@/lib/supabase'; // Import auth
 import { toast } from 'sonner';
 
 export type Notification = {
@@ -19,6 +19,7 @@ export type Notification = {
   status: 'unread' | 'read' | 'archived';
   related_entity_id?: string;
   related_entity_type?: string;
+  user_id: string; // Add user_id
   created_at: string;
 };
 
@@ -40,10 +41,17 @@ const NotificationList: React.FC<NotificationListProps> = ({ notifications, onNo
   };
 
   const handleMarkAsRead = async (id: string) => {
+    const { data: { user } } = await auth.getUser();
+    if (!user) {
+      toast.error("Vous devez être connecté pour effectuer cette action.");
+      return;
+    }
+
     const { error } = await supabase
       .from('notifications')
       .update({ status: 'read' })
-      .eq('id', id);
+      .eq('id', id)
+      .eq('user_id', user.id); // Ensure user owns the record
 
     if (error) {
       console.error("Erreur lors de la mise à jour du statut de la notification:", error.message);
@@ -55,10 +63,17 @@ const NotificationList: React.FC<NotificationListProps> = ({ notifications, onNo
   };
 
   const handleArchive = async (id: string) => {
+    const { data: { user } } = await auth.getUser();
+    if (!user) {
+      toast.error("Vous devez être connecté pour effectuer cette action.");
+      return;
+    }
+
     const { error } = await supabase
       .from('notifications')
       .update({ status: 'archived' })
-      .eq('id', id);
+      .eq('id', id)
+      .eq('user_id', user.id); // Ensure user owns the record
 
     if (error) {
       console.error("Erreur lors de l'archivage de la notification:", error.message);

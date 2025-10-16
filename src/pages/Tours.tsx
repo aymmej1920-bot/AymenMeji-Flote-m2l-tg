@@ -7,7 +7,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import TourForm from '@/components/tours/TourForm';
 import { DataTable } from '@/components/ui/data-table';
 import { columns, Tour } from '@/components/tours/TourColumns';
-import { supabase } from '@/lib/supabase';
+import { supabase, auth } from '@/lib/supabase'; // Import auth
 import { toast } from 'sonner';
 import { CustomCard } from '@/components/CustomCard';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -33,9 +33,17 @@ const Tours: React.FC = () => {
 
   const fetchTours = async () => {
     setLoading(true);
+    const { data: { user } } = await auth.getUser();
+    if (!user) {
+      toast.error("Vous devez être connecté pour voir les tournées.");
+      setLoading(false);
+      return;
+    }
+
     const { data, error } = await supabase
       .from('tours')
       .select('*')
+      .eq('user_id', user.id) // Filter by user_id
       .order('start_date', { ascending: false });
 
     if (error) {
@@ -65,10 +73,17 @@ const Tours: React.FC = () => {
 
   const confirmDeleteTour = async () => {
     if (tourToDelete) {
+      const { data: { user } } = await auth.getUser();
+      if (!user) {
+        toast.error("Vous devez être connecté pour effectuer cette action.");
+        return;
+      }
+
       const { error } = await supabase
         .from('tours')
         .delete()
-        .eq('id', tourToDelete.id);
+        .eq('id', tourToDelete.id)
+        .eq('user_id', user.id); // Ensure user owns the record
 
       if (error) {
         console.error("Erreur lors de la suppression de la tournée:", error.message);

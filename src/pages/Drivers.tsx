@@ -7,7 +7,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import DriverForm from '@/components/drivers/DriverForm'; // Import DriverForm
 import { DataTable } from '@/components/ui/data-table';
 import { columns, Driver } from '@/components/drivers/DriverColumns'; // Import columns and Driver type
-import { supabase } from '@/lib/supabase';
+import { supabase, auth } from '@/lib/supabase'; // Import auth
 import { toast } from 'sonner';
 import { CustomCard } from '@/components/CustomCard';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -33,9 +33,17 @@ const Drivers: React.FC = () => {
 
   const fetchDrivers = async () => {
     setLoading(true);
+    const { data: { user } } = await auth.getUser();
+    if (!user) {
+      toast.error("Vous devez être connecté pour voir les conducteurs.");
+      setLoading(false);
+      return;
+    }
+
     const { data, error } = await supabase
       .from('drivers')
       .select('*')
+      .eq('user_id', user.id) // Filter by user_id
       .order('created_at', { ascending: false });
 
     if (error) {
@@ -65,10 +73,17 @@ const Drivers: React.FC = () => {
 
   const confirmDeleteDriver = async () => {
     if (driverToDelete) {
+      const { data: { user } } = await auth.getUser();
+      if (!user) {
+        toast.error("Vous devez être connecté pour effectuer cette action.");
+        return;
+      }
+
       const { error } = await supabase
         .from('drivers')
         .delete()
-        .eq('id', driverToDelete.id);
+        .eq('id', driverToDelete.id)
+        .eq('user_id', user.id); // Ensure user owns the record
 
       if (error) {
         console.error("Erreur lors de la suppression du conducteur:", error.message);

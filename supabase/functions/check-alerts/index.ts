@@ -33,7 +33,7 @@ serve(async (req) => {
     // --- Check for Maintenance Due ---
     const { data: vehicles, error: vehicleError } = await supabaseClient
       .from('vehicles')
-      .select('id, make, model, license_plate, next_maintenance_date')
+      .select('id, make, model, license_plate, next_maintenance_date, user_id') // Select user_id
       .not('next_maintenance_date', 'is', null)
       .lte('next_maintenance_date', sevenDaysFromNowISO); // Maintenance due today or in next 7 days
 
@@ -48,6 +48,7 @@ serve(async (req) => {
           .eq('related_entity_id', vehicle.id)
           .eq('related_entity_type', 'maintenance')
           .eq('status', 'unread')
+          .eq('user_id', vehicle.user_id) // Filter by user_id
           .ilike('message', `%maintenance pour le véhicule ${vehicle.license_plate}%`) // More specific check
           .limit(1);
 
@@ -61,6 +62,7 @@ serve(async (req) => {
               status: 'unread',
               related_entity_id: vehicle.id,
               related_entity_type: 'maintenance',
+              user_id: vehicle.user_id, // Assign notification to the vehicle's user
             });
           if (insertError) console.error('Error inserting maintenance notification:', insertError);
         }
@@ -70,7 +72,7 @@ serve(async (req) => {
     // --- Check for Expiring Documents ---
     const { data: documents, error: documentError } = await supabaseClient
       .from('documents')
-      .select('id, title, document_type, expiry_date, vehicle_id, driver_id')
+      .select('id, title, document_type, expiry_date, vehicle_id, driver_id, user_id') // Select user_id
       .not('expiry_date', 'is', null)
       .lte('expiry_date', sevenDaysFromNowISO); // Expiring today or in next 7 days
 
@@ -85,6 +87,7 @@ serve(async (req) => {
           .eq('related_entity_id', doc.id)
           .eq('related_entity_type', 'document')
           .eq('status', 'unread')
+          .eq('user_id', doc.user_id) // Filter by user_id
           .ilike('message', `%document "${doc.title}"%`) // More specific check
           .limit(1);
 
@@ -107,6 +110,7 @@ serve(async (req) => {
               status: 'unread',
               related_entity_id: doc.id,
               related_entity_type: 'document',
+              user_id: doc.user_id, // Assign notification to the document's user
             });
           if (insertError) console.error('Error inserting document notification:', insertError);
         }

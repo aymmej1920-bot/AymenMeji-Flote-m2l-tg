@@ -7,7 +7,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import VehicleForm from '@/components/vehicles/VehicleForm';
 import { DataTable } from '@/components/ui/data-table';
 import { columns, Vehicle } from '@/components/vehicles/VehicleColumns';
-import { supabase } from '@/lib/supabase';
+import { supabase, auth } from '@/lib/supabase';
 import { toast } from 'sonner';
 import { CustomCard } from '@/components/CustomCard';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -21,41 +21,73 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@/components/ui/alert-dialog"; // Import AlertDialog components
+} from "@/components/ui/alert-dialog";
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'; // Import React Query hooks
 
 const Vehicles: React.FC = () => {
-  const [vehicles, setVehicles] = useState<Vehicle[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false); // Renamed for clarity
-  const [editingVehicle, setEditingVehicle] = useState<Vehicle | null>(null); // New state for editing vehicle
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [editingVehicle, setEditingVehicle] = useState<Vehicle | null>(null);
   const [vehicleToDelete, setVehicleToDelete] = useState<Vehicle | null>(null);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const queryClient = useQueryClient();
 
-  const fetchVehicles = async () => {
-    setLoading(true);
-    const { data, error } = await supabase
-      .from('vehicles')
-      .select('*')
-      .order('created_at', { ascending: false });
-
-    if (error) {
-      console.error("Erreur lors du chargement des véhicules:", error.message);
-      toast.error("Erreur lors du chargement des véhicules: " + error.message);
-      setVehicles([]);
-    } else {
-      setVehicles(data as Vehicle[]);
+  const getUserId = async () => {
+    const { data: { user } } = await auth.getUser();
+    if (!user) {
+      throw new Error("Vous devez être connecté pour voir les véhicules.");
     }
-    setLoading(false);
+    return user.id;
   };
 
-  useEffect(() => {
-    fetchVehicles();
-  }, []);
+  // Fetch vehicles using React Query
+  const { data: vehicles, isLoading, error } = useQuery<Vehicle[], Error>({
+    queryKey: ['vehicles'],
+    queryFn: async () => {
+      const userId = await getUserId();
+      const { data, error } = await supabase
+        .from('vehicles')
+        .select('*')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false });
 
-  const handleFormSuccess = () => { // Unified success handler for add/edit
-    fetchVehicles();
+      if (error) throw error;
+      return data as Vehicle[];
+    },
+  });
+
+  useEffect(() => {
+    if (error) {
+      toast.error("Erreur lors du chargement des véhicules: " + error.message);
+    }
+  }, [error]);
+
+  // Mutation for deleting a vehicle
+  const deleteVehicleMutation = useMutation<void, Error, string>({
+    mutationFn: async (vehicleId: string) => {
+      const userId = await getUserId();
+      const { error } = await supabase
+        .from('vehicles')
+        .delete()
+        .eq('id', vehicleId)
+        .eq('user_id', userId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success("Véhicule supprimé avec succès !");
+      queryClient.invalidateQueries({ queryKey: ['vehicles'] }); // Invalidate cache to refetch
+      setVehicleToDelete(null);
+      setShowDeleteDialog(false);
+    },
+    onError: (err) => {
+      console.error("Erreur lors de la suppression du véhicule:", err.message);
+      toast.error("Erreur lors de la suppression du véhicule: " + err.message);
+    },
+  });
+
+  const handleFormSuccess = () => {
+    queryClient.invalidateQueries({ queryKey: ['vehicles'] });
     setIsAddDialogOpen(false);
-    setEditingVehicle(null); // Clear editing state
+    setEditingVehicle(null);
   };
 
   const handleDeleteClick = (vehicle: Vehicle) => {
@@ -63,28 +95,15 @@ const Vehicles: React.FC = () => {
     setShowDeleteDialog(true);
   };
 
-  const confirmDeleteVehicle = async () => {
+  const confirmDeleteVehicle = () => {
     if (vehicleToDelete) {
-      const { error } = await supabase
-        .from('vehicles')
-        .delete()
-        .eq('id', vehicleToDelete.id);
-
-      if (error) {
-        console.error("Erreur lors de la suppression du véhicule:", error.message);
-        toast.error("Erreur lors de la suppression du véhicule: " + error.message);
-      } else {
-        toast.success("Véhicule supprimé avec succès !");
-        fetchVehicles();
-      }
-      setVehicleToDelete(null);
-      setShowDeleteDialog(false);
+      deleteVehicleMutation.mutate(vehicleToDelete.id);
     }
   };
 
   const handleEditClick = (vehicle: Vehicle) => {
     setEditingVehicle(vehicle);
-    setIsAddDialogOpen(true); // Use the same dialog for edit
+    setIsAddDialogOpen(true);
   };
 
   return (
@@ -98,10 +117,10 @@ const Vehicles: React.FC = () => {
         <h1 className="text-3xl font-heading font-bold text-foreground">Gestion des Véhicules</h1>
         <Dialog open={isAddDialogOpen} onOpenChange={(open) => {
           setIsAddDialogOpen(open);
-          if (!open) setEditingVehicle(null); // Clear editing state when dialog closes
+          if (!open) setEditingVehicle(null);
         }}>
           <DialogTrigger asChild>
-            <CustomButton onClick={() => setEditingVehicle(null)}> {/* Clear editing state when opening for add */}
+            <CustomButton onClick={() => setEditingVehicle(null)}>
               <PlusCircle className="mr-2 h-4 w-4" /> Ajouter un Véhicule
             </CustomButton>
           </DialogTrigger>
@@ -122,7 +141,7 @@ const Vehicles: React.FC = () => {
         transition={{ duration: 0.5, delay: 0.2 }}
       >
         <CustomCard className="p-6">
-          {loading ? (
+          {isLoading ? (
             <div className="space-y-4">
               <Skeleton className="h-10 w-full" />
               <Skeleton className="h-10 w-full" />
@@ -131,7 +150,7 @@ const Vehicles: React.FC = () => {
               <Skeleton className="h-10 w-full" />
             </div>
           ) : (
-            <DataTable columns={columns({ onDelete: handleDeleteClick, onEdit: handleEditClick })} data={vehicles} />
+            <DataTable columns={columns({ onDelete: handleDeleteClick, onEdit: handleEditClick })} data={vehicles || []} />
           )}
         </CustomCard>
       </motion.div>

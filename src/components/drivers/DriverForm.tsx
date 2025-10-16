@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-import { supabase } from "@/lib/supabase";
+import { supabase, auth } from "@/lib/supabase"; // Import auth
 import { CustomCard, CustomCardContent, CustomCardHeader, CustomCardTitle } from "@/components/CustomCard";
 import { motion } from "framer-motion";
 import { Driver } from "./DriverColumns";
@@ -97,11 +97,18 @@ const DriverForm: React.FC<DriverFormProps> = ({ onSuccess, initialData }) => {
 
   async function onSubmit(values: DriverFormValues) {
     try {
+      const { data: { user } } = await auth.getUser();
+      if (!user) {
+        toast.error("Vous devez être connecté pour effectuer cette action.");
+        return;
+      }
+
       const payload = {
         ...values,
         hire_date: values.hire_date ? format(values.hire_date, "yyyy-MM-dd") : null,
         email: values.email === "" ? null : values.email, // Handle empty string for optional fields
         phone_number: values.phone_number === "" ? null : values.phone_number,
+        user_id: user.id, // Add user_id to the payload
       };
 
       if (initialData?.id) {
@@ -109,7 +116,8 @@ const DriverForm: React.FC<DriverFormProps> = ({ onSuccess, initialData }) => {
         const { error } = await supabase
           .from('drivers')
           .update(updateValues)
-          .eq('id', initialData.id);
+          .eq('id', initialData.id)
+          .eq('user_id', user.id); // Ensure user owns the record
 
         if (error) {
           throw error;

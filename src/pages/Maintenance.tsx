@@ -7,7 +7,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import MaintenanceForm from '@/components/maintenance/MaintenanceForm';
 import { DataTable } from '@/components/ui/data-table';
 import { columns, MaintenanceRecord } from '@/components/maintenance/MaintenanceColumns';
-import { supabase } from '@/lib/supabase';
+import { supabase, auth } from '@/lib/supabase'; // Import auth
 import { toast } from 'sonner';
 import { CustomCard } from '@/components/CustomCard';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -33,9 +33,17 @@ const Maintenance: React.FC = () => {
 
   const fetchMaintenanceRecords = async () => {
     setLoading(true);
+    const { data: { user } } = await auth.getUser();
+    if (!user) {
+      toast.error("Vous devez être connecté pour voir les enregistrements de maintenance.");
+      setLoading(false);
+      return;
+    }
+
     const { data, error } = await supabase
       .from('maintenance_records')
       .select('*')
+      .eq('user_id', user.id) // Filter by user_id
       .order('maintenance_date', { ascending: false });
 
     if (error) {
@@ -65,10 +73,17 @@ const Maintenance: React.FC = () => {
 
   const confirmDeleteRecord = async () => {
     if (recordToDelete) {
+      const { data: { user } } = await auth.getUser();
+      if (!user) {
+        toast.error("Vous devez être connecté pour effectuer cette action.");
+        return;
+      }
+
       const { error } = await supabase
         .from('maintenance_records')
         .delete()
-        .eq('id', recordToDelete.id);
+        .eq('id', recordToDelete.id)
+        .eq('user_id', user.id); // Ensure user owns the record
 
       if (error) {
         console.error("Erreur lors de la suppression de l'enregistrement:", error.message);

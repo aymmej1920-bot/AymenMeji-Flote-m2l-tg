@@ -7,7 +7,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import FuelLogForm from '@/components/fuel/FuelLogForm';
 import { DataTable } from '@/components/ui/data-table';
 import { columns, FuelLog } from '@/components/fuel/FuelLogColumns';
-import { supabase } from '@/lib/supabase';
+import { supabase, auth } from '@/lib/supabase'; // Import auth
 import { toast } from 'sonner';
 import { CustomCard } from '@/components/CustomCard';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -33,9 +33,17 @@ const Fuel: React.FC = () => {
 
   const fetchFuelLogs = async () => {
     setLoading(true);
+    const { data: { user } } = await auth.getUser();
+    if (!user) {
+      toast.error("Vous devez être connecté pour voir les relevés de carburant.");
+      setLoading(false);
+      return;
+    }
+
     const { data, error } = await supabase
       .from('fuel_logs')
       .select('*')
+      .eq('user_id', user.id) // Filter by user_id
       .order('fill_date', { ascending: false });
 
     if (error) {
@@ -65,10 +73,17 @@ const Fuel: React.FC = () => {
 
   const confirmDeleteFuelLog = async () => {
     if (fuelLogToDelete) {
+      const { data: { user } } = await auth.getUser();
+      if (!user) {
+        toast.error("Vous devez être connecté pour effectuer cette action.");
+        return;
+      }
+
       const { error } = await supabase
         .from('fuel_logs')
         .delete()
-        .eq('id', fuelLogToDelete.id);
+        .eq('id', fuelLogToDelete.id)
+        .eq('user_id', user.id); // Ensure user owns the record
 
       if (error) {
         console.error("Erreur lors de la suppression du relevé de carburant:", error.message);

@@ -16,7 +16,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { supabase } from "@/lib/supabase";
+import { supabase, auth } from "@/lib/supabase"; // Import auth
 import { CustomCard, CustomCardContent, CustomCardHeader, CustomCardTitle } from "@/components/CustomCard";
 import { motion } from "framer-motion";
 import { MaintenanceRecord } from "./MaintenanceColumns";
@@ -77,9 +77,15 @@ const MaintenanceForm: React.FC<MaintenanceFormProps> = ({ onSuccess, initialDat
 
   useEffect(() => {
     const fetchVehicles = async () => {
+      const { data: { user } } = await auth.getUser();
+      if (!user) {
+        toast.error("Vous devez être connecté pour voir les véhicules.");
+        return;
+      }
       const { data, error } = await supabase
         .from('vehicles')
-        .select('id, make, model, license_plate');
+        .select('id, make, model, license_plate')
+        .eq('user_id', user.id); // Filter by user_id
       if (error) {
         console.error("Erreur lors du chargement des véhicules:", error.message);
         toast.error("Erreur lors du chargement des véhicules: " + error.message);
@@ -113,11 +119,18 @@ const MaintenanceForm: React.FC<MaintenanceFormProps> = ({ onSuccess, initialDat
 
   async function onSubmit(values: MaintenanceFormValues) {
     try {
+      const { data: { user } } = await auth.getUser();
+      if (!user) {
+        toast.error("Vous devez être connecté pour effectuer cette action.");
+        return;
+      }
+
       const payload = {
         ...values,
         maintenance_date: format(values.maintenance_date, "yyyy-MM-dd"),
         cost: values.cost || null,
         notes: values.notes === "" ? null : values.notes,
+        user_id: user.id, // Add user_id to the payload
       };
 
       if (initialData?.id) {
@@ -125,7 +138,8 @@ const MaintenanceForm: React.FC<MaintenanceFormProps> = ({ onSuccess, initialDat
         const { error } = await supabase
           .from('maintenance_records')
           .update(updateValues)
-          .eq('id', initialData.id);
+          .eq('id', initialData.id)
+          .eq('user_id', user.id); // Ensure user owns the record
 
         if (error) {
           throw error;

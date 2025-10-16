@@ -16,7 +16,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { supabase } from "@/lib/supabase";
+import { supabase, auth } from "@/lib/supabase"; // Import auth
 import { CustomCard, CustomCardContent, CustomCardHeader, CustomCardTitle } from "@/components/CustomCard";
 import { motion } from "framer-motion";
 import { Document } from "./DocumentColumns";
@@ -81,9 +81,16 @@ const DocumentForm: React.FC<DocumentFormProps> = ({ onSuccess, initialData }) =
 
   useEffect(() => {
     const fetchData = async () => {
+      const { data: { user } } = await auth.getUser();
+      if (!user) {
+        toast.error("Vous devez être connecté pour voir les données.");
+        return;
+      }
+
       const { data: vehiclesData, error: vehiclesError } = await supabase
         .from('vehicles')
-        .select('id, make, model, license_plate');
+        .select('id, make, model, license_plate')
+        .eq('user_id', user.id); // Filter by user_id
       if (vehiclesError) {
         console.error("Erreur lors du chargement des véhicules:", vehiclesError.message);
         toast.error("Erreur lors du chargement des véhicules: " + vehiclesError.message);
@@ -93,7 +100,8 @@ const DocumentForm: React.FC<DocumentFormProps> = ({ onSuccess, initialData }) =
 
       const { data: driversData, error: driversError } = await supabase
         .from('drivers')
-        .select('id, first_name, last_name');
+        .select('id, first_name, last_name')
+        .eq('user_id', user.id); // Filter by user_id
       if (driversError) {
         console.error("Erreur lors du chargement des conducteurs:", driversError.message);
         toast.error("Erreur lors du chargement des conducteurs: " + driversError.message);
@@ -131,6 +139,12 @@ const DocumentForm: React.FC<DocumentFormProps> = ({ onSuccess, initialData }) =
 
   async function onSubmit(values: DocumentFormValues) {
     try {
+      const { data: { user } } = await auth.getUser();
+      if (!user) {
+        toast.error("Vous devez être connecté pour effectuer cette action.");
+        return;
+      }
+
       const payload = {
         ...values,
         issue_date: format(values.issue_date, "yyyy-MM-dd"),
@@ -139,6 +153,7 @@ const DocumentForm: React.FC<DocumentFormProps> = ({ onSuccess, initialData }) =
         vehicle_id: values.vehicle_id || null,
         driver_id: values.driver_id || null,
         notes: values.notes === "" ? null : values.notes,
+        user_id: user.id, // Add user_id to the payload
       };
 
       if (initialData?.id) {
@@ -146,7 +161,8 @@ const DocumentForm: React.FC<DocumentFormProps> = ({ onSuccess, initialData }) =
         const { error } = await supabase
           .from('documents')
           .update(updateValues)
-          .eq('id', initialData.id);
+          .eq('id', initialData.id)
+          .eq('user_id', user.id); // Ensure user owns the record
 
         if (error) {
           throw error;

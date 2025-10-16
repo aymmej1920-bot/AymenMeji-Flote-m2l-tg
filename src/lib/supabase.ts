@@ -12,3 +12,4 @@ if (!supabaseAnonKey) {
 }
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+export const auth = supabase.auth; // Export auth object

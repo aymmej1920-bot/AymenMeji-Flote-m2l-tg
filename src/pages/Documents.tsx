@@ -7,7 +7,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import DocumentForm from '@/components/documents/DocumentForm';
 import { DataTable } from '@/components/ui/data-table';
 import { columns, Document } from '@/components/documents/DocumentColumns';
-import { supabase } from '@/lib/supabase';
+import { supabase, auth } from '@/lib/supabase'; // Import auth
 import { toast } from 'sonner';
 import { CustomCard } from '@/components/CustomCard';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -33,9 +33,17 @@ const Documents: React.FC = () => {
 
   const fetchDocuments = async () => {
     setLoading(true);
+    const { data: { user } } = await auth.getUser();
+    if (!user) {
+      toast.error("Vous devez être connecté pour voir les documents.");
+      setLoading(false);
+      return;
+    }
+
     const { data, error } = await supabase
       .from('documents')
       .select('*')
+      .eq('user_id', user.id) // Filter by user_id
       .order('issue_date', { ascending: false });
 
     if (error) {
@@ -65,10 +73,17 @@ const Documents: React.FC = () => {
 
   const confirmDeleteDocument = async () => {
     if (documentToDelete) {
+      const { data: { user } } = await auth.getUser();
+      if (!user) {
+        toast.error("Vous devez être connecté pour effectuer cette action.");
+        return;
+      }
+
       const { error } = await supabase
         .from('documents')
         .delete()
-        .eq('id', documentToDelete.id);
+        .eq('id', documentToDelete.id)
+        .eq('user_id', user.id); // Ensure user owns the record
 
       if (error) {
         console.error("Erreur lors de la suppression du document:", error.message);

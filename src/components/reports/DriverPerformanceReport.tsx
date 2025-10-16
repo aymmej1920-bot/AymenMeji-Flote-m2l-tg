@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from 'react';
-import { supabase } from '@/lib/supabase';
+import { supabase, auth } from '@/lib/supabase'; // Import auth
 import { toast } from 'sonner';
 import { CustomCard, CustomCardContent, CustomCardHeader, CustomCardTitle } from '@/components/CustomCard';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -38,9 +38,17 @@ const DriverPerformanceReport: React.FC = () => {
   useEffect(() => {
     const fetchDriverPerformance = async () => {
       setLoading(true);
+      const { data: { user } } = await auth.getUser();
+      if (!user) {
+        toast.error("Vous devez être connecté pour voir la performance des conducteurs.");
+        setLoading(false);
+        return;
+      }
+
       const { data: drivers, error: driversError } = await supabase
         .from('drivers')
-        .select('id, first_name, last_name');
+        .select('id, first_name, last_name')
+        .eq('user_id', user.id); // Filter by user_id
 
       if (driversError) {
         console.error("Erreur lors du chargement des conducteurs:", driversError.message);
@@ -63,7 +71,8 @@ const DriverPerformanceReport: React.FC = () => {
       // Fetch tours count
       const { data: tours, error: toursError } = await supabase
         .from('tours')
-        .select('driver_id');
+        .select('driver_id')
+        .eq('user_id', user.id); // Filter by user_id
 
       if (toursError) {
         console.error("Erreur lors du chargement des tournées:", toursError.message);
@@ -81,7 +90,8 @@ const DriverPerformanceReport: React.FC = () => {
       // Fetch fuel logs count
       const { data: fuelLogs, error: fuelLogsError } = await supabase
         .from('fuel_logs')
-        .select('driver_id');
+        .select('driver_id')
+        .eq('user_id', user.id); // Filter by user_id
 
       if (fuelLogsError) {
         console.error("Erreur lors du chargement des relevés de carburant:", fuelLogsError.message);

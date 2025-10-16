@@ -7,7 +7,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import InspectionForm from '@/components/inspections/InspectionForm';
 import { DataTable } from '@/components/ui/data-table';
 import { columns, Inspection } from '@/components/inspections/InspectionColumns';
-import { supabase } from '@/lib/supabase';
+import { supabase, auth } from '@/lib/supabase'; // Import auth
 import { toast } from 'sonner';
 import { CustomCard } from '@/components/CustomCard';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -33,9 +33,17 @@ const Inspections: React.FC = () => {
 
   const fetchInspections = async () => {
     setLoading(true);
+    const { data: { user } } = await auth.getUser();
+    if (!user) {
+      toast.error("Vous devez être connecté pour voir les inspections.");
+      setLoading(false);
+      return;
+    }
+
     const { data, error } = await supabase
       .from('inspections')
       .select('*')
+      .eq('user_id', user.id) // Filter by user_id
       .order('inspection_date', { ascending: false });
 
     if (error) {
@@ -65,10 +73,17 @@ const Inspections: React.FC = () => {
 
   const confirmDeleteInspection = async () => {
     if (inspectionToDelete) {
+      const { data: { user } } = await auth.getUser();
+      if (!user) {
+        toast.error("Vous devez être connecté pour effectuer cette action.");
+        return;
+      }
+
       const { error } = await supabase
         .from('inspections')
         .delete()
-        .eq('id', inspectionToDelete.id);
+        .eq('id', inspectionToDelete.id)
+        .eq('user_id', user.id); // Ensure user owns the record
 
       if (error) {
         console.error("Erreur lors de la suppression de l'inspection:", error.message);
