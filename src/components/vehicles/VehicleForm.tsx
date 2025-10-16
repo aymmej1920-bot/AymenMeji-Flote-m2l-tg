@@ -4,7 +4,7 @@ import React from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { Button } from "@/components/ui/button";
+import { CustomButton } from "@/components/CustomButton"; // Utiliser CustomButton
 import {
   Form,
   FormControl,
@@ -163,7 +163,7 @@ const VehicleForm: React.FC<VehicleFormProps> = ({ onSuccess, initialData }) => 
             </FormItem>
           )}
         />
-        <Button type="submit">Ajouter le véhicule</Button>
+        <CustomButton type="submit">Ajouter le véhicule</CustomButton> {/* Utiliser CustomButton */}
       </form>
     </Form>
   );

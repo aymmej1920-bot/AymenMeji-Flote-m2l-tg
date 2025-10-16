@@ -52,6 +52,31 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        // Custom colors based on the new palette
+        "night-blue": {
+          DEFAULT: "#1E2A38",
+          foreground: "#FFFFFF",
+        },
+        turquoise: {
+          DEFAULT: "#00B8D9",
+          foreground: "#FFFFFF",
+        },
+        coral: {
+          DEFAULT: "#FF6B6B",
+          foreground: "#FFFFFF",
+        },
+        "light-grey": {
+          DEFAULT: "#F5F7FA",
+          foreground: "#4A4A4A",
+        },
+        "dark-grey": {
+          DEFAULT: "#4A4A4A",
+          foreground: "#FFFFFF",
+        },
+        white: {
+          DEFAULT: "#FFFFFF",
+          foreground: "#1E2A38",
+        },
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
           foreground: "hsl(var(--sidebar-foreground))",
@@ -64,9 +89,14 @@ export default {
         },
       },
       borderRadius: {
-        lg: "var(--radius)",
-        md: "calc(var(--radius) - 2px)",
-        sm: "calc(var(--radius) - 4px)",
+        lg: "12px", // Adjusted for buttons/cards
+        md: "8px",
+        sm: "4px",
+      },
+      fontFamily: {
+        sans: ["Inter", "sans-serif"], // Default text
+        heading: ["Poppins", "sans-serif"], // Titles
+        mono: ["Montserrat", "monospace"], // Numbers/Stats
       },
       keyframes: {
         "accordion-down": {
@@ -89,6 +119,7 @@ export default {
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
+        "pulse-light": "pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite", // For button hover
       },
     },
   },
