@@ -37,7 +37,7 @@ const MonthlyMaintenanceCostChart: React.FC = () => {
       if (error) throw error;
 
       const monthlyDataMap = new Map<string, number>();
-
+      
       maintenanceRecords.forEach(record => {
         if (record.cost) {
           const date = parseISO(record.maintenance_date);
@@ -46,6 +46,7 @@ const MonthlyMaintenanceCostChart: React.FC = () => {
           monthlyDataMap.set(monthKey, currentCost + record.cost);
         }
       });
+      
 
       return Array.from(monthlyDataMap.entries())
         .sort(([monthA], [monthB]) => monthA.localeCompare(monthB))

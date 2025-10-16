@@ -37,13 +37,14 @@ const MonthlyFuelCostChart: React.FC = () => {
       if (error) throw error;
 
       const monthlyDataMap = new Map<string, number>();
-
+      
       fuelLogs.forEach(log => {
         const date = parseISO(log.fill_date);
         const monthKey = format(date, 'yyyy-MM', { locale: fr });
         const currentCost = monthlyDataMap.get(monthKey) || 0;
         monthlyDataMap.set(monthKey, currentCost + log.cost);
       });
+      
 
       return Array.from(monthlyDataMap.entries())
         .sort(([monthA], [monthB]) => monthA.localeCompare(monthB))

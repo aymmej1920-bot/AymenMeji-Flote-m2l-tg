@@ -28,9 +28,8 @@ const Notifications: React.FC = () => {
       const userId = await getUserId();
       const { data, error } = await supabase
         .from('notifications')
-        .select('id,title,message,type,status,related_entity_id,related_entity_type,user_id,created_at')
-        .eq('user_id', userId)
-        .order('created_at', { ascending: false });
+        .select('id') // Simplified for debugging
+        .eq('user_id', userId); // Removed order clause for debugging
 
       if (error) throw error;
       return data as Notification[];

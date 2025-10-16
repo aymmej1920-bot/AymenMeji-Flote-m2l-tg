@@ -46,9 +46,8 @@ const Fuel: React.FC = () => {
       const userId = await getUserId();
       const { data, error } = await supabase
         .from('fuel_logs')
-        .select('id,vehicle_id,driver_id,fill_date,quantity_liters,cost,odometer_reading,fuel_type,location,notes,created_at,user_id')
-        .eq('user_id', userId)
-        .order('fill_date', { ascending: false });
+        .select('id') // Simplified for debugging
+        .eq('user_id', userId); // Removed order clause for debugging
 
       if (error) throw error;
       return data as FuelLog[];

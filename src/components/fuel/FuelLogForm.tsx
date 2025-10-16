@@ -106,7 +106,7 @@ const FuelLogForm: React.FC<FuelLogFormProps> = ({ onSuccess, initialData }) => 
       const userId = await getUserId();
       const { data, error } = await supabase
         .from('vehicles')
-        .select('id,make,model,license_plate')
+        .select('id') // Simplified for debugging
         .eq('user_id', userId);
       if (error) throw error;
       return data as Vehicle[];
@@ -120,7 +120,7 @@ const FuelLogForm: React.FC<FuelLogFormProps> = ({ onSuccess, initialData }) => 
       const userId = await getUserId();
       const { data, error } = await supabase
         .from('drivers')
-        .select('id,first_name,last_name')
+        .select('id') // Simplified for debugging
         .eq('user_id', userId);
       if (error) throw error;
       return data as Driver[];
@@ -240,7 +240,7 @@ const FuelLogForm: React.FC<FuelLogFormProps> = ({ onSuccess, initialData }) => 
                       <SelectContent>
                         {vehicles?.map((vehicle) => (
                           <SelectItem key={vehicle.id} value={vehicle.id}>
-                            {vehicle.make} {vehicle.model} ({vehicle.license_plate})
+                            {vehicle.id} {/* Display ID for debugging */}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -255,17 +255,17 @@ const FuelLogForm: React.FC<FuelLogFormProps> = ({ onSuccess, initialData }) => 
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Conducteur (Optionnel)</FormLabel>
-                    <Select onValueChange={(value) => field.onChange(value === "" ? null : value)} value={field.value || ""}>
+                    <Select onValueChange={(value) => field.onChange(value === "null" ? null : value)} value={field.value === null ? "null" : field.value}>
                       <FormControl>
                         <SelectTrigger disabled={isLoadingDrivers}>
                           <SelectValue placeholder="Sélectionner un conducteur" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="">Aucun</SelectItem>
+                        <SelectItem value="null">Aucun</SelectItem>
                         {drivers?.map((driver) => (
                           <SelectItem key={driver.id} value={driver.id}>
-                            {driver.first_name} {driver.last_name}
+                            {driver.id} {/* Display ID for debugging */}
                           </SelectItem>
                         ))}
                       </SelectContent>

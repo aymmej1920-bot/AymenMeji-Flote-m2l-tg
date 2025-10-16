@@ -44,16 +44,14 @@ const Dashboard: React.FC = () => {
       const { count: activeDriversCount, error: driversError } = await supabase
         .from('drivers')
         .select('id', { count: 'exact' })
-        .eq('user_id', userId)
-        .eq('status', 'Actif');
+        .eq('user_id', userId);
       if (driversError) throw driversError;
 
       // Fetch maintenance in progress
       const { count: maintenanceInProgressCount, error: maintenanceError } = await supabase
         .from('maintenance_records')
         .select('id', { count: 'exact' })
-        .eq('user_id', userId)
-        .eq('status', 'En cours');
+        .eq('user_id', userId);
       if (maintenanceError) throw maintenanceError;
 
       // Fetch fuel logs for average fuel level (this is a placeholder, actual fuel level would be more complex)

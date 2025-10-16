@@ -48,14 +48,13 @@ const Vehicles: React.FC = () => {
       if (!userId) {
         throw new Error("User ID is not available.");
       }
-      const selectString = 'id,make,model,year,license_plate,vin,mileage,fuel_type,status,created_at,next_maintenance_date,user_id';
+      const selectString = 'id'; // Simplified for debugging
       console.log("Supabase select string for vehicles:", selectString); // Log select string
 
       const { data, error } = await supabase
         .from('vehicles')
         .select(selectString)
-        .eq('user_id', userId)
-        .order('created_at', { ascending: false }); // Keep order for now, but simplified select
+        .eq('user_id', userId); // Removed order clause for debugging
 
       if (error) throw error;
       return data as Vehicle[];

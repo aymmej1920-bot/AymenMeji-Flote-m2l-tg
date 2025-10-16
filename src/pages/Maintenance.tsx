@@ -46,9 +46,8 @@ const Maintenance: React.FC = () => {
       const userId = await getUserId();
       const { data, error } = await supabase
         .from('maintenance_records')
-        .select('id,vehicle_id,description,maintenance_date,cost,status,notes,created_at,user_id')
-        .eq('user_id', userId)
-        .order('maintenance_date', { ascending: false });
+        .select('id') // Simplified for debugging
+        .eq('user_id', userId); // Removed order clause for debugging
 
       if (error) throw error;
       return data as MaintenanceRecord[];
