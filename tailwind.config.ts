@@ -54,11 +54,11 @@ export default {
         },
         // Custom colors based on the new palette
         "night-blue": {
-          DEFAULT: "#1E2A38",
+          DEFAULT: "#111827", // Updated to new title text color
           foreground: "#FFFFFF",
         },
         turquoise: {
-          DEFAULT: "#00B8D9",
+          DEFAULT: "#00AEEF", // Updated to new accent color
           foreground: "#FFFFFF",
         },
         coral: {
@@ -66,29 +66,33 @@ export default {
           foreground: "#FFFFFF",
         },
         "light-grey": {
-          DEFAULT: "#F4F5F7", // Adjusted to user's request
+          DEFAULT: "#F9FAFB", // Updated to new main background
           foreground: "#4A4A4A",
         },
         "dark-grey": {
-          DEFAULT: "#4A4A4A",
+          DEFAULT: "#6B7280", // Updated to new sub-text/labels color
           foreground: "#FFFFFF",
         },
         white: {
           DEFAULT: "#FFFFFF",
-          foreground: "#1E2A38",
+          foreground: "#111827", // Updated
         },
         // Dark mode specific colors
         "dark-background": {
-          DEFAULT: "#0E1116",
-          foreground: "#EAEAEA",
+          DEFAULT: "#111827", // Updated
+          foreground: "#E5E7EB", // Updated
         },
         "dark-card": {
           DEFAULT: "#1C1F26",
-          foreground: "#EAEAEA",
+          foreground: "#E5E7EB", // Updated
         },
+        "dark-accent": { // New dark mode accent color
+          DEFAULT: "#14B8A6",
+          foreground: "#111827",
+        }
       },
       borderRadius: {
-        lg: "16px", // Adjusted for buttons/cards to be more rounded
+        lg: "10px", // Adjusted for buttons/cards to be more rounded
         md: "8px",
         sm: "4px",
       },

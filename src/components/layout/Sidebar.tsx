@@ -3,13 +3,13 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { CustomButton } from '@/components/CustomButton';
-import { Car, Users, Fuel, FileText, Wrench, Map, BarChart2, Bell, Home, LayoutDashboard } from 'lucide-react'; // Removed ClipboardList
+import { Car, Users, Fuel, FileText, Wrench, Map, BarChart2, Bell, Home, LayoutDashboard } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { motion, Variants, Easing } from 'framer-motion'; // Import motion, Variants, and Easing
+import { motion, Variants, Easing } from 'framer-motion';
 
 interface SidebarProps {
-  isOpen?: boolean; // Potentiellement pour un état mobile
-  onClose?: () => void; // Potentiellement pour un un état mobile
+  isOpen?: boolean;
+  onClose?: () => void;
 }
 
 const navItems = [
@@ -21,7 +21,6 @@ const navItems = [
   { name: 'Carburant', href: '/fuel', icon: Fuel },
   { name: 'Documents', href: '/documents', icon: FileText },
   { name: 'Tournées', href: '/tours', icon: Map },
-  // { name: 'Inspections', href: '/inspections', icon: ClipboardList }, // Removed inspection item
   { name: 'Rapports', href: '/reports', icon: BarChart2 },
   { name: 'Alertes', href: '/notifications', icon: Bell },
 ];
@@ -31,15 +30,15 @@ const Sidebar: React.FC<SidebarProps> = () => {
 
   const sidebarVariants: Variants = {
     hidden: { x: -200, opacity: 0 },
-    visible: { x: 0, opacity: 1, transition: { duration: 0.5, ease: [0.42, 0, 0.58, 1] as Easing } }, // Explicitly cast to Easing
+    visible: { x: 0, opacity: 1, transition: { duration: 0.5, ease: [0.42, 0, 0.58, 1] as Easing } },
   };
 
   const itemVariants: Variants = {
     hidden: { opacity: 0, x: -20 },
-    visible: (i: number) => ({ // This is correct for Variants
+    visible: (i: number) => ({
       opacity: 1,
       x: 0,
-      transition: { delay: 0.1 + i * 0.05, ease: [0.42, 0, 0.58, 1] as Easing }, // Explicitly cast to Easing
+      transition: { delay: 0.1 + i * 0.05, ease: [0.42, 0, 0.58, 1] as Easing },
     }),
   };
 
@@ -57,7 +56,8 @@ const Sidebar: React.FC<SidebarProps> = () => {
             <motion.div
               key={item.name}
               variants={itemVariants}
-              custom={index} // Pass index as custom prop for staggered animation
+              custom={index}
+              className="relative" // Added relative for absolute positioning of indicator
             >
               <CustomButton
                 variant="ghost"
@@ -70,7 +70,17 @@ const Sidebar: React.FC<SidebarProps> = () => {
                 asChild
               >
                 <Link to={item.href} className="flex items-center gap-3">
-                  <item.icon className="h-5 w-5" />
+                  {isActive && (
+                    <motion.div
+                      layoutId="sidebar-active-indicator" // Unique layoutId for animation
+                      className="absolute left-0 top-0 h-full w-1 bg-primary rounded-r-md"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      transition={{ duration: 0.2 }}
+                    />
+                  )}
+                  <item.icon className={cn("h-5 w-5", isActive && "ml-2")} /> {/* Adjust margin for icon when active */}
                   <span className="font-medium">{item.name}</span>
                 </Link>
               </CustomButton>

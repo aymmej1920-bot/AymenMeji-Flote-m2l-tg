@@ -4,7 +4,7 @@ import { ThemeToggle } from '@/components/ThemeToggle';
 import Sidebar from './Sidebar';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { motion, Variants, Easing } from 'framer-motion';
-import { supabase, auth } from '@/lib/supabase'; // Import auth
+import { supabase, auth } from '@/lib/supabase';
 import { toast } from 'sonner';
 import { CustomButton } from '@/components/CustomButton';
 import { LogOut } from 'lucide-react';
@@ -82,26 +82,28 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
       <Sidebar />
       <div className="flex flex-col flex-grow">
         <motion.header
-          className="bg-card text-foreground p-4 shadow-md border-b border-border flex justify-between items-center"
+          className="bg-card text-foreground p-4 shadow-sm border-b border-border flex justify-between items-center" // Adjusted shadow
           variants={headerVariants}
         >
           <Link to="/" className="text-2xl font-heading font-bold text-primary">
             Fleet Manager M2l-TG
           </Link>
           <div className="flex items-center space-x-4">
-            <div className="text-sm text-muted-foreground hidden md:block">
+            <div className="text-xs text-muted-foreground hidden md:block"> {/* Smaller text for date */}
               {new Date().toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
             </div>
             {userEmail && (
-              <span className="text-sm font-medium text-foreground hidden sm:block">{userEmail}</span>
+              <div className="flex items-center space-x-2 bg-muted rounded-full px-3 py-1"> {/* Pill shape for user */}
+                <Avatar className="h-6 w-6"> {/* Smaller avatar */}
+                  <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
+                  <AvatarFallback className="text-xs">FM</AvatarFallback> {/* Smaller fallback text */}
+                </Avatar>
+                <span className="text-sm font-medium text-foreground hidden sm:block">{userEmail}</span>
+              </div>
             )}
-            <Avatar>
-              <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
-              <AvatarFallback>FM</AvatarFallback>
-            </Avatar>
             <ThemeToggle />
             <CustomButton variant="ghost" size="icon" onClick={handleLogout}>
-              <LogOut className="h-[1.2rem] w-[1.2rem]" />
+              <LogOut className="h-4 w-4" /> {/* Smaller icon */}
               <span className="sr-only">Déconnexion</span>
             </CustomButton>
           </div>

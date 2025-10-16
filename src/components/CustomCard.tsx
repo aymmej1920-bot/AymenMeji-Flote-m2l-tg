@@ -11,7 +11,7 @@ const CustomCard = React.forwardRef<
   <div
     ref={ref}
     className={cn(
-      "rounded-xl border bg-card/90 text-card-foreground shadow-lg backdrop-blur-sm", // Adjusted for glassmorphism
+      "rounded-xl border bg-card text-card-foreground shadow-sm", // Adjusted for soft shadow
       className
     )}
     {...props}
