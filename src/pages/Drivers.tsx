@@ -46,7 +46,7 @@ const Drivers: React.FC = () => {
       const userId = await getUserId();
       const { data, error } = await supabase
         .from('drivers')
-        .select('*')
+        .select('id,first_name,last_name,license_number,phone_number,email,hire_date,status,created_at,user_id')
         .eq('user_id', userId)
         .order('created_at', { ascending: false });
 

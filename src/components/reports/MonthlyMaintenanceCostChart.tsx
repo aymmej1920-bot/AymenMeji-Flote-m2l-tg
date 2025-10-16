@@ -3,7 +3,7 @@
 import React, { useEffect } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { supabase, auth } from '@/lib/supabase';
-import { toast } from 'sonner';
+import { toast } from "sonner";
 import { CustomCard, CustomCardContent, CustomCardHeader, CustomCardTitle } from '@/components/CustomCard';
 import { Skeleton } from '@/components/ui/skeleton';
 import { format, parseISO } from 'date-fns';
@@ -30,7 +30,7 @@ const MonthlyMaintenanceCostChart: React.FC = () => {
       const userId = await getUserId();
       const { data: maintenanceRecords, error } = await supabase
         .from('maintenance_records')
-        .select('maintenance_date, cost')
+        .select('maintenance_date,cost')
         .eq('user_id', userId)
         .order('maintenance_date', { ascending: true });
 

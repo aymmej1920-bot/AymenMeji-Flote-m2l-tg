@@ -46,7 +46,7 @@ const Vehicles: React.FC = () => {
       const userId = await getUserId();
       const { data, error } = await supabase
         .from('vehicles')
-        .select('*')
+        .select('id,make,model,year,license_plate,vin,mileage,fuel_type,status,created_at,next_maintenance_date,user_id')
         .eq('user_id', userId)
         .order('created_at', { ascending: false });
 

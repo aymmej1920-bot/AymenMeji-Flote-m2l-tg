@@ -4,7 +4,7 @@ import React, { useEffect } from 'react';
 import NotificationList, { Notification } from '@/components/notifications/NotificationList';
 import { CustomButton } from '@/components/CustomButton';
 import { supabase, auth } from '@/lib/supabase';
-import { toast } from 'sonner';
+import { toast } from "sonner";
 import { Skeleton } from '@/components/ui/skeleton';
 import { motion } from 'framer-motion';
 import { PlusCircle } from 'lucide-react';
@@ -28,7 +28,7 @@ const Notifications: React.FC = () => {
       const userId = await getUserId();
       const { data, error } = await supabase
         .from('notifications')
-        .select('*')
+        .select('id,title,message,type,status,related_entity_id,related_entity_type,user_id,created_at')
         .eq('user_id', userId)
         .order('created_at', { ascending: false });
 

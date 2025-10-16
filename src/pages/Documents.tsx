@@ -46,7 +46,7 @@ const Documents: React.FC = () => {
       const userId = await getUserId();
       const { data, error } = await supabase
         .from('documents')
-        .select('*')
+        .select('id,title,document_type,issue_date,expiry_date,file_url,vehicle_id,driver_id,notes,created_at,user_id')
         .eq('user_id', userId)
         .order('issue_date', { ascending: false });
 

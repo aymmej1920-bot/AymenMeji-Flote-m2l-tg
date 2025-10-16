@@ -3,7 +3,7 @@
 import React, { useEffect } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { supabase, auth } from '@/lib/supabase';
-import { toast } from 'sonner';
+import { toast } from "sonner";
 import { CustomCard, CustomCardContent, CustomCardHeader, CustomCardTitle } from '@/components/CustomCard';
 import { Skeleton } from '@/components/ui/skeleton';
 import { format, parseISO } from 'date-fns';
@@ -30,7 +30,7 @@ const MonthlyFuelCostChart: React.FC = () => {
       const userId = await getUserId();
       const { data: fuelLogs, error } = await supabase
         .from('fuel_logs')
-        .select('fill_date, cost')
+        .select('fill_date,cost')
         .eq('user_id', userId)
         .order('fill_date', { ascending: true });
 

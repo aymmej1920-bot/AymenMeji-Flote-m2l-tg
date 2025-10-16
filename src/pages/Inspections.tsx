@@ -46,7 +46,7 @@ const Inspections: React.FC = () => {
       const userId = await getUserId();
       const { data, error } = await supabase
         .from('inspections')
-        .select('*')
+        .select('id,vehicle_id,driver_id,inspection_date,inspection_type,status,notes,created_at,user_id')
         .eq('user_id', userId)
         .order('inspection_date', { ascending: false });
 

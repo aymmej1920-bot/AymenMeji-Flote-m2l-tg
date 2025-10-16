@@ -36,14 +36,14 @@ const Dashboard: React.FC = () => {
       // Fetch total vehicles
       const { count: totalVehiclesCount, error: vehiclesError } = await supabase
         .from('vehicles')
-        .select('*', { count: 'exact' })
+        .select('id', { count: 'exact' })
         .eq('user_id', userId);
       if (vehiclesError) throw vehiclesError;
 
       // Fetch active drivers
       const { count: activeDriversCount, error: driversError } = await supabase
         .from('drivers')
-        .select('*', { count: 'exact' })
+        .select('id', { count: 'exact' })
         .eq('user_id', userId)
         .eq('status', 'Actif');
       if (driversError) throw driversError;
@@ -51,7 +51,7 @@ const Dashboard: React.FC = () => {
       // Fetch maintenance in progress
       const { count: maintenanceInProgressCount, error: maintenanceError } = await supabase
         .from('maintenance_records')
-        .select('*', { count: 'exact' })
+        .select('id', { count: 'exact' })
         .eq('user_id', userId)
         .eq('status', 'En cours');
       if (maintenanceError) throw maintenanceError;
@@ -66,7 +66,7 @@ const Dashboard: React.FC = () => {
       // Fetch operational vehicles (placeholder, would need more complex logic)
       const { count: operationalVehiclesCount, error: operationalVehiclesError } = await supabase
         .from('vehicles')
-        .select('*', { count: 'exact' })
+        .select('id', { count: 'exact' })
         .eq('user_id', userId)
         .eq('status', 'Actif'); // Assuming 'Actif' means operational
       if (operationalVehiclesError) throw operationalVehiclesError;
@@ -74,7 +74,7 @@ const Dashboard: React.FC = () => {
       // Fetch planned maintenance done (placeholder, would need more complex logic)
       const { count: plannedMaintenanceDoneCount, error: plannedMaintenanceDoneError } = await supabase
         .from('maintenance_records')
-        .select('*', { count: 'exact' })
+        .select('id', { count: 'exact' })
         .eq('user_id', userId)
         .eq('status', 'Terminé'); // Assuming 'Terminé' means done
       if (plannedMaintenanceDoneError) throw plannedMaintenanceDoneError;

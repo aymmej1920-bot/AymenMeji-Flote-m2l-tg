@@ -106,7 +106,7 @@ const FuelLogForm: React.FC<FuelLogFormProps> = ({ onSuccess, initialData }) => 
       const userId = await getUserId();
       const { data, error } = await supabase
         .from('vehicles')
-        .select('id, make, model, license_plate')
+        .select('id,make,model,license_plate')
         .eq('user_id', userId);
       if (error) throw error;
       return data as Vehicle[];
@@ -120,7 +120,7 @@ const FuelLogForm: React.FC<FuelLogFormProps> = ({ onSuccess, initialData }) => 
       const userId = await getUserId();
       const { data, error } = await supabase
         .from('drivers')
-        .select('id, first_name, last_name')
+        .select('id,first_name,last_name')
         .eq('user_id', userId);
       if (error) throw error;
       return data as Driver[];

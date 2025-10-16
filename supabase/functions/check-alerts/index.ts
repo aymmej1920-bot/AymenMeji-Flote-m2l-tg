@@ -1,4 +1,6 @@
+// @ts-ignore
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
+// @ts-ignore
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.45.0';
 
 const corsHeaders = {
@@ -21,6 +23,7 @@ interface Document {
   title: string;
   document_type: string;
   expiry_date: string | null;
+  file_url: string | null;
   vehicle_id: string | null;
   driver_id: string | null;
   user_id: string;
@@ -34,21 +37,26 @@ interface Driver {
 
 interface Notification {
   id: string;
-  related_entity_id: string | null;
-  related_entity_type: string | null;
-  status: 'unread' | 'read' | 'archived';
-  user_id: string;
+  title: string;
   message: string;
+  type: 'info' | 'warning' | 'error' | 'success';
+  status: 'unread' | 'read' | 'archived';
+  related_entity_id?: string | null;
+  related_entity_type?: string | null;
+  user_id: string;
+  created_at: string;
 }
 
-serve(async (req) => {
+serve(async (req: Request) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
     const supabaseClient = createClient(
+      // @ts-ignore
       Deno.env.get('SUPABASE_URL') ?? '',
+      // @ts-ignore
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '', 
       {
         auth: {
@@ -65,7 +73,7 @@ serve(async (req) => {
     // --- Check for Maintenance Due ---
     const { data: vehicles, error: vehicleError } = await supabaseClient
       .from('vehicles')
-      .select('id, make, model, license_plate, next_maintenance_date, user_id')
+      .select('id,make,model,license_plate,next_maintenance_date,user_id')
       .not('next_maintenance_date', 'is', null)
       .lte('next_maintenance_date', sevenDaysFromNowISO);
 
@@ -84,9 +92,7 @@ serve(async (req) => {
           .limit(1);
 
         if (!existingNotification || existingNotification.length === 0) {
-          const { error: insertError } = await supabaseClient
-            .from('notifications')
-            .insert({
+          const notificationToInsert: Omit<Notification, 'id' | 'created_at'> = {
               title: `Maintenance due pour ${vehicle.make} ${vehicle.model}`,
               message: `La maintenance pour le véhicule ${vehicle.license_plate} est prévue pour le ${vehicle.next_maintenance_date}.`,
               type: 'warning',
@@ -94,7 +100,10 @@ serve(async (req) => {
               related_entity_id: vehicle.id,
               related_entity_type: 'maintenance',
               user_id: vehicle.user_id,
-            });
+            };
+          const { error: insertError } = await supabaseClient
+            .from('notifications')
+            .insert(notificationToInsert);
           if (insertError) console.error('Error inserting maintenance notification:', insertError);
         }
       }
@@ -103,7 +112,7 @@ serve(async (req) => {
     // --- Check for Expiring Documents ---
     const { data: documents, error: documentError } = await supabaseClient
       .from('documents')
-      .select('id, title, document_type, expiry_date, vehicle_id, driver_id, user_id')
+      .select('id,title,document_type,expiry_date,file_url,vehicle_id,driver_id,user_id')
       .not('expiry_date', 'is', null)
       .lte('expiry_date', sevenDaysFromNowISO);
 
@@ -127,13 +136,12 @@ serve(async (req) => {
             const { data: vehicleData } = await supabaseClient.from('vehicles').select('license_plate').eq('id', doc.vehicle_id).single();
             entityName = vehicleData ? `véhicule ${vehicleData.license_plate}` : '';
           } else if (doc.driver_id) {
-            const { data: driverData } = await supabaseClient.from('drivers').select('first_name, last_name').eq('id', doc.driver_id).single();
+            const { data: driverDataResult } = await supabaseClient.from('drivers').select('first_name,last_name').eq('id', doc.driver_id).single();
+            const driverData: Pick<Driver, 'first_name' | 'last_name'> | null = driverDataResult;
             entityName = driverData ? `conducteur ${driverData.first_name} ${driverData.last_name}` : '';
           }
 
-          const { error: insertError } = await supabaseClient
-            .from('notifications')
-            .insert({
+          const notificationToInsert: Omit<Notification, 'id' | 'created_at'> = {
               title: `Document expiré ou proche de l'expiration: ${doc.title}`,
               message: `Le document "${doc.title}" (${doc.document_type}) pour ${entityName} expire le ${doc.expiry_date}.`,
               type: 'warning',
@@ -141,7 +149,10 @@ serve(async (req) => {
               related_entity_id: doc.id,
               related_entity_type: 'document',
               user_id: doc.user_id,
-            });
+            };
+          const { error: insertError } = await supabaseClient
+            .from('notifications')
+            .insert(notificationToInsert);
           if (insertError) console.error('Error inserting document notification:', insertError);
         }
       }

@@ -46,7 +46,7 @@ const Tours: React.FC = () => {
       const userId = await getUserId();
       const { data, error } = await supabase
         .from('tours')
-        .select('*')
+        .select('id,name,start_date,end_date,vehicle_id,driver_id,status,notes,created_at,user_id')
         .eq('user_id', userId)
         .order('start_date', { ascending: false });
 

@@ -2,7 +2,7 @@
 
 import React, { useEffect } from 'react';
 import { supabase, auth } from '@/lib/supabase';
-import { toast } from 'sonner';
+import { toast } from "sonner";
 import { CustomCard, CustomCardContent, CustomCardHeader, CustomCardTitle } from '@/components/CustomCard';
 import { Skeleton } from '@/components/ui/skeleton';
 import { DataTable } from '@/components/ui/data-table';
@@ -46,7 +46,7 @@ const DriverPerformanceReport: React.FC = () => {
       const userId = await getUserId();
       const { data: drivers, error: driversError } = await supabase
         .from('drivers')
-        .select('id, first_name, last_name')
+        .select('id,first_name,last_name')
         .eq('user_id', userId);
 
       if (driversError) throw driversError;

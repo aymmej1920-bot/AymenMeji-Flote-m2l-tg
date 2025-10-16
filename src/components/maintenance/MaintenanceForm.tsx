@@ -91,7 +91,7 @@ const MaintenanceForm: React.FC<MaintenanceFormProps> = ({ onSuccess, initialDat
       const userId = await getUserId();
       const { data, error } = await supabase
         .from('vehicles')
-        .select('id, make, model, license_plate')
+        .select('id,make,model,license_plate')
         .eq('user_id', userId);
       if (error) throw error;
       return data as Vehicle[];
