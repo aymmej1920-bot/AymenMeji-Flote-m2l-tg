@@ -66,7 +66,7 @@ export default {
           foreground: "#FFFFFF",
         },
         "light-grey": {
-          DEFAULT: "#F5F7FA",
+          DEFAULT: "#F4F5F7", // Adjusted to user's request
           foreground: "#4A4A4A",
         },
         "dark-grey": {
@@ -77,26 +77,25 @@ export default {
           DEFAULT: "#FFFFFF",
           foreground: "#1E2A38",
         },
-        sidebar: {
-          DEFAULT: "hsl(var(--sidebar-background))",
-          foreground: "hsl(var(--sidebar-foreground))",
-          primary: "hsl(var(--sidebar-primary))",
-          "primary-foreground": "hsl(var(--sidebar-primary-foreground))",
-          accent: "hsl(var(--sidebar-accent))",
-          "accent-foreground": "hsl(var(--sidebar-accent-foreground))",
-          border: "hsl(var(--sidebar-border))",
-          ring: "hsl(var(--sidebar-ring))",
+        // Dark mode specific colors
+        "dark-background": {
+          DEFAULT: "#0E1116",
+          foreground: "#EAEAEA",
+        },
+        "dark-card": {
+          DEFAULT: "#1C1F26",
+          foreground: "#EAEAEA",
         },
       },
       borderRadius: {
-        lg: "12px", // Adjusted for buttons/cards
+        lg: "16px", // Adjusted for buttons/cards to be more rounded
         md: "8px",
         sm: "4px",
       },
       fontFamily: {
         sans: ["Inter", "sans-serif"], // Default text
         heading: ["Poppins", "sans-serif"], // Titles
-        mono: ["Montserrat", "monospace"], // Numbers/Stats
+        mono: ["Montserrat", "monospace"], // Numbers/Stats (already good)
       },
       keyframes: {
         "accordion-down": {

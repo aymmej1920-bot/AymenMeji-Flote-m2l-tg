@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { CustomButton } from '@/components/CustomButton'; // Utiliser CustomButton
+import { CustomButton } from '@/components/CustomButton';
 import { PlusCircle } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import VehicleForm from '@/components/vehicles/VehicleForm';
@@ -9,8 +9,8 @@ import { DataTable } from '@/components/ui/data-table';
 import { columns, Vehicle } from '@/components/vehicles/VehicleColumns';
 import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
-import { CustomCard } from '@/components/CustomCard'; // Utiliser CustomCard
-import { Skeleton } from '@/components/ui/skeleton'; // Importer Skeleton
+import { CustomCard } from '@/components/CustomCard';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const Vehicles: React.FC = () => {
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
@@ -40,29 +40,29 @@ const Vehicles: React.FC = () => {
 
   const handleVehicleAdded = () => {
     fetchVehicles();
-    setIsDialogOpen(false); // Ferme la boîte de dialogue après l'ajout
+    setIsDialogOpen(false);
   };
 
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-heading font-bold text-night-blue">Gestion des Véhicules</h1> {/* Utiliser font-heading et night-blue */}
+        <h1 className="text-3xl font-heading font-bold text-foreground">Gestion des Véhicules</h1> {/* Use text-foreground for theme support */}
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
-            <CustomButton> {/* Utiliser CustomButton */}
+            <CustomButton>
               <PlusCircle className="mr-2 h-4 w-4" /> Ajouter un Véhicule
             </CustomButton>
           </DialogTrigger>
           <DialogContent className="sm:max-w-[600px]">
             <DialogHeader>
-              <DialogTitle className="font-heading text-night-blue">Ajouter un nouveau véhicule</DialogTitle> {/* Utiliser font-heading et night-blue */}
+              <DialogTitle className="font-heading text-foreground">Ajouter un nouveau véhicule</DialogTitle> {/* Use text-foreground for theme support */}
             </DialogHeader>
             <VehicleForm onSuccess={handleVehicleAdded} />
           </DialogContent>
         </Dialog>
       </div>
 
-      <CustomCard className="p-6"> {/* Utiliser CustomCard */}
+      <CustomCard className="p-6">
         {loading ? (
           <div className="space-y-4">
             <Skeleton className="h-10 w-full" />
