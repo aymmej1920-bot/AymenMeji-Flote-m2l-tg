@@ -3,10 +3,10 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { CustomButton } from '@/components/CustomButton';
-import { LayoutDashboard, Car, Users, Route, Fuel, FileText, Wrench, BarChart3, Truck, LogOut } from 'lucide-react'; // 'Home' removed
+import { LayoutDashboard, Car, Users, Route, Fuel, FileText, Wrench, BarChart3, Truck, LogOut } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion, Variants, Easing } from 'framer-motion';
-import { toast } from 'sonner'; // Added toast import
+import { toast } from 'sonner';
 
 interface SidebarProps {
   isOpen?: boolean;
@@ -43,7 +43,7 @@ const Sidebar: React.FC<SidebarProps> = () => {
 
   return (
     <motion.aside
-      className="w-64 bg-gray-800 text-white professional-shadow flex flex-col"
+      className="w-64 bg-sidebar-bg-dark text-white professional-shadow flex flex-col frosted-glass-effect" // Apply new background and glass effect
       initial="hidden"
       animate="visible"
       variants={sidebarVariants}
@@ -75,13 +75,13 @@ const Sidebar: React.FC<SidebarProps> = () => {
                   "w-full justify-start text-left px-4 py-2 rounded-lg transition-colors duration-200",
                   "sidebar-btn", // Custom class for sidebar button styling
                   isActive
-                    ? "bg-blue-600 text-white shadow-md" // Active state styling
+                    ? "bg-accent text-white shadow-md" // Active state styling using accent color
                     : "hover:bg-gray-700 text-gray-300 hover:text-white" // Inactive state styling
                 )}
                 asChild
               >
                 <Link to={item.href} className="flex items-center gap-3">
-                  <item.icon className={cn("h-5 w-5", isActive && "ml-0")} /> {/* Removed ml-2 for active state */}
+                  <item.icon className={cn("h-5 w-5", isActive && "ml-0")} />
                   <span className="font-medium">{item.name}</span>
                 </Link>
               </CustomButton>

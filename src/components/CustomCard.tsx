@@ -11,7 +11,7 @@ const CustomCard = React.forwardRef<
   <div
     ref={ref}
     className={cn(
-      "rounded-xl border bg-card text-card-foreground shadow-sm", // Adjusted for soft shadow
+      "rounded-xl border bg-card text-card-foreground shadow-card-float", // Adjusted for new card shadow
       className
     )}
     {...props}

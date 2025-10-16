@@ -25,7 +25,7 @@ export default {
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
         primary: {
-          DEFAULT: "hsl(var(--primary))",
+          DEFAULT: "hsl(var(--primary))", // This will be the accent color for general primary use
           foreground: "hsl(var(--primary-foreground))",
         },
         secondary: {
@@ -41,7 +41,7 @@ export default {
           foreground: "hsl(var(--muted-foreground))",
         },
         accent: {
-          DEFAULT: "hsl(var(--accent))",
+          DEFAULT: "hsl(var(--accent))", // #00BFA6
           foreground: "hsl(var(--accent-foreground))",
         },
         popover: {
@@ -52,43 +52,14 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
-        // Custom colors based on the new palette
-        "night-blue": {
-          DEFAULT: "#111827",
-          foreground: "#FFFFFF",
-        },
-        turquoise: {
-          DEFAULT: "#00C8AA", // New accent color
-          foreground: "#FFFFFF",
-        },
-        "text-main": {
-          DEFAULT: "#1E293B",
-          foreground: "#FFFFFF",
-        },
-        "text-secondary": {
-          DEFAULT: "#64748B",
-          foreground: "#FFFFFF",
-        },
-        "table-header-bg": {
-          DEFAULT: "#F1F5F9",
-          foreground: "#1E293B",
-        },
-        // Dark mode specific colors (adjusting existing ones to fit new palette)
-        "dark-background": {
-          DEFAULT: "#111827",
-          foreground: "#E5E7EB",
-        },
-        "dark-card": {
-          DEFAULT: "#1C1F26",
-          foreground: "#E5E7EB",
-        },
-        "dark-accent": {
-          DEFAULT: "#14B8A6",
-          foreground: "#111827",
-        },
-        // Colors from the provided HTML for gradients and specific elements
-        "gradient-start": "#4A00E0",
-        "gradient-end": "#8E2DE2",
+        // Custom colors for the new palette
+        'primary-button-start': '#00BFA6', // Turquoise technologique
+        'primary-button-end': '#0098DA',   // Blue for gradient end
+        'main-text': '#1E293B',            // Gris doux, lisible
+        'secondary-text': '#64748B',       // Sobriété
+        'sidebar-bg-dark': '#111827',      // Dark for sidebar
+        
+        // Existing KPI colors (keep them as they are for now)
         "kpi-blue-start": "#3B82F6",
         "kpi-blue-end": "#2563EB",
         "kpi-green-start": "#10B981",
@@ -140,6 +111,7 @@ export default {
       },
       boxShadow: { // Custom shadow for professional look
         'professional': '0 10px 30px rgba(0, 0, 0, 0.15)',
+        'card-float': '0 4px 12px rgba(0,0,0,0.04)', // New shadow for cards
       },
     },
   },

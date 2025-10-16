@@ -18,11 +18,11 @@ const Drivers: React.FC = () => {
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="text-4xl font-bold text-gray-800"
+          className="text-4xl font-bold text-main-text" // Use main-text color
         >
           Gestion des Conducteurs
         </motion.h1>
-        <CustomButton onClick={handleAddDriver} className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg professional-shadow transition-all duration-300">
+        <CustomButton onClick={handleAddDriver} className="primary-button-gradient text-white px-6 py-3 rounded-lg shadow-card-float transition-all duration-300"> {/* Use gradient and new shadow */}
           <Plus className="mr-2 h-4 w-4" /> Ajouter Conducteur
         </CustomButton>
       </div>
@@ -31,9 +31,9 @@ const Drivers: React.FC = () => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.2 }}
-        className="bg-white rounded-xl professional-shadow overflow-hidden p-6"
+        className="bg-white rounded-xl shadow-card-float overflow-hidden p-6" // Use new card shadow
       >
-        <p className="text-muted-foreground">
+        <p className="text-secondary-text"> {/* Use secondary-text color */}
           Tableau des conducteurs à venir ici.
         </p>
       </motion.div>

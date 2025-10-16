@@ -149,7 +149,7 @@ const Vehicles: React.FC = () => {
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="text-4xl font-bold text-gray-800"
+            className="text-4xl font-bold text-main-text" // Use main-text color
           >
             Chargement des Véhicules...
           </motion.h1>
@@ -176,13 +176,13 @@ const Vehicles: React.FC = () => {
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="text-4xl font-bold text-gray-800"
+          className="text-4xl font-bold text-main-text" // Use main-text color
         >
           Gestion des Véhicules
         </motion.h1>
         <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
           <DialogTrigger asChild>
-            <CustomButton onClick={handleAddVehicle} className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg professional-shadow transition-all duration-300">
+            <CustomButton onClick={handleAddVehicle} className="primary-button-gradient text-white px-6 py-3 rounded-lg shadow-card-float transition-all duration-300"> {/* Use gradient and new shadow */}
               <Plus className="mr-2 h-4 w-4" /> Ajouter Véhicule
             </CustomButton>
           </DialogTrigger>
@@ -204,7 +204,7 @@ const Vehicles: React.FC = () => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.2 }}
-        className="bg-white rounded-xl professional-shadow overflow-hidden p-6"
+        className="bg-white rounded-xl shadow-card-float overflow-hidden p-6" // Use new card shadow
       >
         <DataTable columns={columns} data={vehicles || []} filterColumnId="plate" filterPlaceholder="Filtrer par plaque..." />
       </motion.div>

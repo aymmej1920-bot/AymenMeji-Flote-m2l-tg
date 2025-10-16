@@ -1,9 +1,9 @@
 "use client";
 
 import React from 'react';
-import { CustomCard, CustomCardHeader, CustomCardTitle, CustomCardContent, CustomCardDescription } from '@/components/CustomCard'; // Added CustomCardDescription
+import { CustomCard, CustomCardHeader, CustomCardTitle, CustomCardContent, CustomCardDescription } from '@/components/CustomCard';
 import { motion } from 'framer-motion';
-import { Car, CheckCircle, Route, Wrench } from 'lucide-react'; // 'Fuel' removed
+import { Car, CheckCircle, Route, Wrench } from 'lucide-react';
 
 const Dashboard: React.FC = () => {
   return (
@@ -12,14 +12,14 @@ const Dashboard: React.FC = () => {
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="text-4xl font-heading font-bold text-gray-800"
+        className="text-4xl font-heading font-bold text-main-text" // Use main-text color
       >
         Tableau de Bord
       </motion.h1>
 
       {/* KPI Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
-        <CustomCard className="bg-gradient-to-br from-kpi-blue-start to-kpi-blue-end text-white rounded-xl professional-shadow p-6">
+        <CustomCard className="bg-gradient-to-br from-kpi-blue-start to-kpi-blue-end text-white rounded-xl shadow-card-float p-6"> {/* Use new card shadow */}
           <div className="flex items-center justify-between">
             <div>
               <CustomCardDescription className="text-blue-100 text-sm font-medium">Véhicules Total</CustomCardDescription>
@@ -31,7 +31,7 @@ const Dashboard: React.FC = () => {
           </div>
         </CustomCard>
 
-        <CustomCard className="bg-gradient-to-br from-kpi-green-start to-kpi-green-end text-white rounded-xl professional-shadow p-6">
+        <CustomCard className="bg-gradient-to-br from-kpi-green-start to-kpi-green-end text-white rounded-xl shadow-card-float p-6"> {/* Use new card shadow */}
           <div className="flex items-center justify-between">
             <div>
               <CustomCardDescription className="text-green-100 text-sm font-medium">Disponibles</CustomCardDescription>
@@ -43,7 +43,7 @@ const Dashboard: React.FC = () => {
           </div>
         </CustomCard>
 
-        <CustomCard className="bg-gradient-to-br from-kpi-orange-start to-kpi-orange-end text-white rounded-xl professional-shadow p-6">
+        <CustomCard className="bg-gradient-to-br from-kpi-orange-start to-kpi-orange-end text-white rounded-xl shadow-card-float p-6"> {/* Use new card shadow */}
           <div className="flex items-center justify-between">
             <div>
               <CustomCardDescription className="text-orange-100 text-sm font-medium">En Mission</CustomCardDescription>
@@ -55,7 +55,7 @@ const Dashboard: React.FC = () => {
           </div>
         </CustomCard>
 
-        <CustomCard className="bg-gradient-to-br from-kpi-red-start to-kpi-red-end text-white rounded-xl professional-shadow p-6">
+        <CustomCard className="bg-gradient-to-br from-kpi-red-start to-kpi-red-end text-white rounded-xl shadow-card-float p-6"> {/* Use new card shadow */}
           <div className="flex items-center justify-between">
             <div>
               <CustomCardDescription className="text-red-100 text-sm font-medium">Maintenance</CustomCardDescription>
@@ -75,9 +75,9 @@ const Dashboard: React.FC = () => {
 
       {/* Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <CustomCard className="bg-white rounded-xl professional-shadow p-6">
+        <CustomCard className="bg-white rounded-xl shadow-card-float p-6"> {/* Use new card shadow */}
           <CustomCardHeader className="pb-4">
-            <CustomCardTitle className="text-xl font-semibold text-gray-800">État des Véhicules</CustomCardTitle>
+            <CustomCardTitle className="text-xl font-semibold text-main-text">État des Véhicules</CustomCardTitle> {/* Use main-text color */}
           </CustomCardHeader>
           <CustomCardContent>
             <div className="chart-container h-[320px]">
@@ -86,9 +86,9 @@ const Dashboard: React.FC = () => {
           </CustomCardContent>
         </CustomCard>
 
-        <CustomCard className="bg-white rounded-xl professional-shadow p-6">
+        <CustomCard className="bg-white rounded-xl shadow-card-float p-6"> {/* Use new card shadow */}
           <CustomCardHeader className="pb-4">
-            <CustomCardTitle className="text-xl font-semibold text-gray-800">Consommation Mensuelle (TND)</CustomCardTitle>
+            <CustomCardTitle className="text-xl font-semibold text-main-text">Consommation Mensuelle (TND)</CustomCardTitle> {/* Use main-text color */}
           </CustomCardHeader>
           <CustomCardContent>
             <div className="chart-container h-[320px]">

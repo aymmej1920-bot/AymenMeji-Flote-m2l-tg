@@ -4,8 +4,8 @@
 
 @layer base {
   :root {
-    --background: 210 20% 97%; /* #F8FAFC (light bluish-grey) */
-    --foreground: 215 25% 20%; /* #1E293B (soft dark grey) */
+    --background: 210 20% 98%; /* #F9FAFB (Gris-blanc apaisant) */
+    --foreground: 215 25% 20%; /* #1E293B (Gris doux, lisible) */
 
     --card: 0 0% 100%; /* #FFFFFF (pure white) */
     --card-foreground: 215 25% 20%; /* #1E293B */
@@ -13,11 +13,11 @@
     --popover: 0 0% 100%;
     --popover-foreground: 215 25% 20%;
 
-    --primary: 221 83% 59%; /* #3B82F6 (Blue from KPI cards) */
+    --primary: 170 100% 39%; /* #00BFA6 (Accent color for general primary use) */
     --primary-foreground: 0 0% 100%; /* White */
 
     --secondary: 210 20% 97%; /* Similar to background for subtle secondary elements */
-    --secondary-foreground: 215 25% 20%; /* #1E293B */
+    --secondary-foreground: 218 17% 59%; /* #64748B (secondary text) */
 
     --destructive: 0 84.2% 60.2%; /* Keeping original destructive red */
     --destructive-foreground: 0 0% 100%; /* White */
@@ -25,23 +25,23 @@
     --muted: 210 20% 97%; /* Similar to background */
     --muted-foreground: 218 17% 59%; /* #64748B (secondary text) */
 
-    --accent: 170 100% 39%; /* #00C8AA */
+    --accent: 170 100% 39%; /* #00BFA6 */
     --accent-foreground: 0 0% 100%; /* White */
 
     --border: 210 10% 90%; /* Light grey border */
     --input: 210 10% 90%;
-    --ring: 221 83% 59%; /* Primary blue */
+    --ring: 170 100% 39%; /* Accent color */
 
     --radius: 0.75rem; /* 12px */
 
     --sidebar-background: 220 10% 10%; /* #111827 (deep night blue) */
     --sidebar-foreground: 0 0% 100%; /* White */
-    --sidebar-primary: 221 83% 59%; /* #3B82F6 */
+    --sidebar-primary: 170 100% 39%; /* #00BFA6 */
     --sidebar-primary-foreground: 0 0% 100%; /* White */
-    --sidebar-accent: 221 83% 59%; /* #3B82F6 */
+    --sidebar-accent: 170 100% 39%; /* #00BFA6 */
     --sidebar-accent-foreground: 0 0% 100%; /* White */
     --sidebar-border: 220 10% 15%; /* Slightly lighter night blue for border */
-    --sidebar-ring: 221 83% 59%;
+    --sidebar-ring: 170 100% 39%;
   }
 
   .dark {
@@ -54,7 +54,7 @@
     --popover: 218 10% 10%;
     --popover-foreground: 210 20% 90%;
 
-    --primary: 221 83% 59%; /* #3B82F6 */
+    --primary: 170 100% 39%; /* #00BFA6 */
     --primary-foreground: 220 10% 10%; /* #111827 */
 
     --secondary: 217.2 32.6% 17.5%;
@@ -63,7 +63,7 @@
     --muted: 217.2 32.6% 17.5%;
     --muted-foreground: 215 20.2% 65.1%;
 
-    --accent: 221 83% 59%; /* #3B82F6 */
+    --accent: 170 100% 39%; /* #00BFA6 */
     --accent-foreground: 210 20% 90%;
 
     --destructive: 0 62.8% 30.6%;
@@ -71,16 +71,16 @@
 
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
-    --ring: 221 83% 59%;
+    --ring: 170 100% 39%;
     
     --sidebar-background: 220 10% 10%; /* #111827 */
     --sidebar-foreground: 210 20% 90%; /* #E5E7EB */
-    --sidebar-primary: 221 83% 59%; /* #3B82F6 */
+    --sidebar-primary: 170 100% 39%; /* #00BFA6 */
     --sidebar-primary-foreground: 220 10% 10%; /* #111827 */
-    --sidebar-accent: 221 83% 59%; /* #3B82F6 */
+    --sidebar-accent: 170 100% 39%; /* #00BFA6 */
     --sidebar-accent-foreground: 210 20% 90%; /* #E5E7EB */
     --sidebar-border: 217.2 32.6% 17.5%;
-    --sidebar-ring: 221 83% 59%;
+    --sidebar-ring: 170 100% 39%;
   }
 }
 
@@ -93,13 +93,22 @@
     @apply bg-background text-foreground font-sans;
   }
 
-  h1, h2, h3, h4, h5, h6 {
-    @apply font-heading;
+  h1 {
+    @apply font-heading text-2xl md:text-[26px] font-semibold; /* Main Title: 26px, semi-bold */
+  }
+  h2 {
+    @apply font-heading text-xl md:text-[18px] font-medium; /* Sub-title: 18px, medium */
+  }
+  h3, h4, h5, h6 {
+    @apply font-heading; /* Keep existing heading styles for others */
+  }
+  p {
+    @apply text-[15px] leading-relaxed; /* Content: 15-16px, spacious line-height */
   }
 
   /* Page title styling */
   .page-title {
-    @apply text-2xl md:text-3xl font-bold;
+    @apply text-2xl md:text-3xl font-bold; /* Keep for specific page titles if needed, but h1/h2 should cover most */
   }
 
   /* Table styling */
@@ -114,6 +123,9 @@
   .table-row {
     @apply border-b border-border transition-colors hover:bg-muted/50;
   }
+  .table-row:nth-child(odd) {
+    @apply bg-muted/20; /* Alternating rows */
+  }
 
   .table-cell {
     @apply p-4 align-middle;
@@ -121,7 +133,7 @@
 
   /* Custom styles for DataTable header */
   .data-table-header-row {
-    @apply bg-table-header-bg text-text-main font-semibold;
+    @apply bg-table-header-bg text-main-text font-semibold; /* Use new text-main color */
   }
 
   /* Styles from HTML prototype */
@@ -140,5 +152,29 @@
   }
   .alert-expire {
       animation: pulse 2s infinite;
+  }
+
+  /* New custom classes */
+  .primary-button-gradient {
+    background: linear-gradient(135deg, var(--primary-button-start) 0%, var(--primary-button-end) 100%);
+  }
+
+  .frosted-glass-effect {
+    background-color: rgba(255, 255, 255, 0.1); /* Light background with opacity */
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px); /* For Safari support */
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+
+  .dark .frosted-glass-effect {
+    background-color: rgba(28, 31, 38, 0.4); /* Dark card color with opacity */
+    border: 1px solid rgba(28, 31, 38, 0.6);
+  }
+
+  .dialog-frosted-glass {
+    background-color: var(--card); /* Use card background */
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid var(--border);
   }
 }

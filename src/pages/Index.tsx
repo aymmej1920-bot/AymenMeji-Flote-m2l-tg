@@ -12,10 +12,10 @@ const Index = () => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
-        <CustomCard className="text-center p-8 professional-shadow">
+        <CustomCard className="text-center p-8 shadow-card-float"> {/* Use new card shadow */}
           <CustomCardContent className="p-0">
-            <h1 className="text-3xl md:text-4xl font-heading font-semibold mb-4 text-text-main">Bienvenue sur Fleet Manager Pro</h1>
-            <p className="text-xl text-text-secondary mb-8">
+            <h1 className="text-3xl md:text-4xl font-heading font-semibold mb-4 text-main-text">Bienvenue sur Fleet Manager Pro</h1> {/* Use main-text color */}
+            <p className="text-xl text-secondary-text mb-8"> {/* Use secondary-text color */}
               Votre solution complète pour une gestion de flotte efficace et intelligente.
             </p>
             <CustomButton size="lg" asChild>

@@ -137,6 +137,7 @@ export function DataTable<TData, TValue>({
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
+                  className="table-row" // Apply table-row class for alternating styles
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>
