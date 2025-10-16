@@ -5,7 +5,7 @@ import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
 import { TablesInsert, TablesUpdate } from '@/types/supabase';
 
-type Vehicle = TablesInsert<'vehicles'> & { id: string }; // Extend with id for existing vehicles
+export type Vehicle = TablesInsert<'vehicles'> & { id: string }; // Exported Vehicle type
 
 // Fetch all vehicles for the current user
 const fetchVehicles = async () => {
@@ -23,13 +23,13 @@ const fetchVehicles = async () => {
 };
 
 // Add a new vehicle
-const addVehicle = async (newVehicle: TablesInsert<'vehicles'>) => {
+const addVehicle = async (newVehicleData: Omit<TablesInsert<'vehicles'>, 'user_id'>) => {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error('User not authenticated');
 
   const { data, error } = await supabase
     .from('vehicles')
-    .insert({ ...newVehicle, user_id: user.id })
+    .insert({ ...newVehicleData, user_id: user.id })
     .select()
     .single();
 
@@ -77,7 +77,7 @@ export const useVehicles = () => {
     queryFn: fetchVehicles,
   });
 
-  const addVehicleMutation = useMutation<Vehicle, Error, TablesInsert<'vehicles'>>({
+  const addVehicleMutation = useMutation<Vehicle, Error, Omit<TablesInsert<'vehicles'>, 'user_id'>>({
     mutationFn: addVehicle,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['vehicles'] });

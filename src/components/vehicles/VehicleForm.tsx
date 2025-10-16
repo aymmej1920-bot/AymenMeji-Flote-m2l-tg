@@ -22,7 +22,8 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { DialogFooter } from '@/components/ui/dialog';
-import { TablesInsert, TablesUpdate } from '@/types/supabase';
+// Removed: import { TablesInsert, TablesUpdate } from '@/types/supabase'; // Not directly used here
+import type { Vehicle } from '@/hooks/useVehicles'; // Import Vehicle type for initialData
 
 const vehicleFormSchema = z.object({
   plate: z.string().min(1, "La plaque d'immatriculation est requise."),
@@ -35,22 +36,22 @@ const vehicleFormSchema = z.object({
   last_service_mileage: z.coerce.number().optional().nullable(),
 });
 
-type VehicleFormValues = z.infer<typeof vehicleFormSchema>;
+export type VehicleFormValues = z.infer<typeof vehicleFormSchema>; // Exported type
 
 interface VehicleFormProps {
-  initialData?: TablesUpdate<'vehicles'> & { id: string };
-  onSubmit: (data: TablesInsert<'vehicles'> | (TablesUpdate<'vehicles'> & { id: string })) => void;
+  initialData?: Vehicle; // Use the exported Vehicle type
+  onSubmit: (data: VehicleFormValues & { id?: string }) => void; // Simplified type for what the form actually produces
   onCancel: () => void;
   isLoading?: boolean;
 }
 
 const VehicleForm: React.FC<VehicleFormProps> = ({ initialData, onSubmit, onCancel, isLoading }) => {
-  const form = useForm<VehicleFormValues>({
+  const form = useForm<VehicleFormValues>({ // Explicitly define generic type
     resolver: zodResolver(vehicleFormSchema),
     defaultValues: {
       plate: initialData?.plate || '',
       type: initialData?.type || '',
-      status: initialData?.status || 'Disponible',
+      status: (initialData?.status || 'Disponible') as VehicleFormValues['status'], // Cast to specific enum type
       mileage: initialData?.mileage || 0,
       last_service_date: initialData?.last_service_date || '',
       last_service_mileage: initialData?.last_service_mileage || 0,
@@ -58,17 +59,18 @@ const VehicleForm: React.FC<VehicleFormProps> = ({ initialData, onSubmit, onCanc
   });
 
   const handleSubmit = (values: VehicleFormValues) => {
-    const dataToSubmit: TablesInsert<'vehicles'> | (TablesUpdate<'vehicles'> & { id: string }) = {
+    const dataToPass = {
       ...values,
       mileage: Number(values.mileage),
-      last_service_mileage: values.last_service_mileage ? Number(values.last_service_mileage) : null,
+      // Simplified: values.last_service_mileage is already number | null due to onChange and zod schema
+      last_service_mileage: values.last_service_mileage, 
       last_service_date: values.last_service_date || null,
     };
 
     if (initialData) {
-      onSubmit({ ...dataToSubmit, id: initialData.id } as TablesUpdate<'vehicles'> & { id: string });
+      onSubmit({ ...dataToPass, id: initialData.id }); // Pass id when updating
     } else {
-      onSubmit(dataToSubmit as TablesInsert<'vehicles'>);
+      onSubmit(dataToPass); // No id when adding
     }
   };
 

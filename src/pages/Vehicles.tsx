@@ -16,7 +16,7 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import VehicleForm from '@/components/vehicles/VehicleForm';
-import { toast } from 'sonner'; // Corrected: import { toast } from 'sonner';
+import { toast } from 'sonner';
 // import { CustomCard } from '@/components/CustomCard'; // Removed: CustomCard is not used here
 import {
   AlertDialog,
@@ -30,16 +30,9 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 
-interface Vehicle {
-  id: string;
-  plate: string;
-  type: string;
-  status: 'Disponible' | 'En Mission' | 'Maintenance';
-  mileage: number;
-  last_service_date: string | null;
-  last_service_mileage: number | null;
-  created_at: string;
-}
+// Import the Vehicle type from useVehicles hook
+import type { Vehicle } from '@/hooks/useVehicles';
+import type { VehicleFormValues } from '@/components/vehicles/VehicleForm'; // Import VehicleFormValues
 
 const Vehicles: React.FC = () => {
   const { vehicles, isLoading, error, addVehicle, updateVehicle, deleteVehicle, addVehicleIsLoading, updateVehicleIsLoading } = useVehicles();
@@ -60,11 +53,14 @@ const Vehicles: React.FC = () => {
     deleteVehicle(id);
   };
 
-  const handleSubmitForm = (data: TablesInsert<'vehicles'> | (TablesUpdate<'vehicles'> & { id: string })) => {
-    if (editingVehicle) {
+  const handleSubmitForm = (data: VehicleFormValues & { id?: string }) => {
+    if (data.id) {
+      // This is an update operation
       updateVehicle(data as TablesUpdate<'vehicles'> & { id: string });
     } else {
-      addVehicle(data as TablesInsert<'vehicles'>);
+      // This is an add operation
+      const { id, ...insertData } = data; // Destructure id, it's not part of insert
+      addVehicle(insertData as Omit<TablesInsert<'vehicles'>, 'user_id'>);
     }
     setIsFormOpen(false);
   };
