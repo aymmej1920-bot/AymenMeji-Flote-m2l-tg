@@ -2,7 +2,7 @@
 
 import { ColumnDef } from "@tanstack/react-table";
 import { MoreHorizontal } from "lucide-react";
-import { motion } from "framer-motion"; // Import motion
+import { motion } from "framer-motion";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -14,7 +14,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-// Définition du type pour un véhicule (à adapter à votre schéma Supabase)
 export type Vehicle = {
   id: string;
   make: string;
@@ -28,7 +27,12 @@ export type Vehicle = {
   created_at: string;
 };
 
-export const columns: ColumnDef<Vehicle>[] = [
+interface VehicleColumnsProps {
+  onDelete: (vehicle: Vehicle) => void;
+  onEdit: (vehicle: Vehicle) => void; // Add onEdit prop
+}
+
+export const columns = ({ onDelete, onEdit }: VehicleColumnsProps): ColumnDef<Vehicle>[] => [
   {
     accessorKey: "make",
     header: "Fabricant",
@@ -84,9 +88,8 @@ export const columns: ColumnDef<Vehicle>[] = [
                 Copier l'ID du véhicule
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>Voir les détails</DropdownMenuItem>
-              <DropdownMenuItem>Modifier</DropdownMenuItem>
-              <DropdownMenuItem className="text-destructive">Supprimer</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => onEdit(vehicle)}>Modifier</DropdownMenuItem> {/* Call onEdit */}
+              <DropdownMenuItem onClick={() => onDelete(vehicle)} className="text-destructive">Supprimer</DropdownMenuItem>
             </motion.div>
           </DropdownMenuContent>
         </DropdownMenu>

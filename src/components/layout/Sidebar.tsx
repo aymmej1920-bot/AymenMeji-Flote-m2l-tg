@@ -31,7 +31,7 @@ const Sidebar: React.FC<SidebarProps> = () => {
 
   const sidebarVariants = {
     hidden: { x: -200, opacity: 0 },
-    visible: { x: 0, opacity: 1, transition: { duration: 0.5, ease: "easeOut" } },
+    visible: { x: 0, opacity: 1, transition: { duration: 0.5, ease: [0.42, 0, 0.58, 1] } }, // Using cubic-bezier array
   };
 
   const itemVariants = {
@@ -53,7 +53,7 @@ const Sidebar: React.FC<SidebarProps> = () => {
             <motion.div
               key={item.name}
               variants={itemVariants}
-              transition={{ delay: 0.1 + index * 0.05 }}
+              transition={{ delay: 0.1 + index * 0.05, ease: [0.42, 0, 0.58, 1] }} // Using cubic-bezier array
             >
               <CustomButton
                 variant="ghost"

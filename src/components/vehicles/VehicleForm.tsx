@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react"; // Import useEffect
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -16,11 +16,13 @@ import {
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { supabase } from "@/lib/supabase";
-import { CustomCard, CustomCardContent, CustomCardHeader, CustomCardTitle } from "@/components/CustomCard"; // Import CustomCard components
-import { motion } from "framer-motion"; // Import motion
+import { CustomCard, CustomCardContent, CustomCardHeader, CustomCardTitle } from "@/components/CustomCard";
+import { motion } from "framer-motion";
+import { Vehicle } from "./VehicleColumns"; // Import Vehicle type
 
 // Schéma de validation pour un véhicule
 const vehicleFormSchema = z.object({
+  id: z.string().optional(), // Add id for editing
   make: z.string().min(2, {
     message: "Le fabricant doit contenir au moins 2 caractères.",
   }),
@@ -47,13 +49,17 @@ type VehicleFormValues = z.infer<typeof vehicleFormSchema>;
 
 interface VehicleFormProps {
   onSuccess?: () => void;
-  initialData?: VehicleFormValues;
+  initialData?: Vehicle; // Use Vehicle type for initialData
 }
 
 const VehicleForm: React.FC<VehicleFormProps> = ({ onSuccess, initialData }) => {
   const form = useForm<VehicleFormValues>({
     resolver: zodResolver(vehicleFormSchema),
-    defaultValues: initialData || {
+    defaultValues: initialData ? {
+      ...initialData,
+      year: initialData.year, // Ensure year is number
+      mileage: initialData.mileage || 0, // Ensure mileage is number
+    } : {
       make: "",
       model: "",
       year: new Date().getFullYear(),
@@ -65,22 +71,59 @@ const VehicleForm: React.FC<VehicleFormProps> = ({ onSuccess, initialData }) => 
     },
   });
 
+  // Reset form with initialData when it changes (for edit mode)
+  useEffect(() => {
+    if (initialData) {
+      form.reset({
+        ...initialData,
+        year: initialData.year,
+        mileage: initialData.mileage || 0,
+      });
+    } else {
+      form.reset({
+        make: "",
+        model: "",
+        year: new Date().getFullYear(),
+        license_plate: "",
+        vin: "",
+        mileage: 0,
+        fuel_type: "Essence",
+        status: "Actif",
+      });
+    }
+  }, [initialData, form]);
+
+
   async function onSubmit(values: VehicleFormValues) {
     try {
-      const { data, error } = await supabase
-        .from('vehicles') // Assurez-vous que cette table existe dans Supabase
-        .insert([values]);
+      if (initialData?.id) {
+        // Update existing vehicle
+        const { id, ...updateValues } = values; // Exclude id from update payload
+        const { error } = await supabase
+          .from('vehicles')
+          .update(updateValues)
+          .eq('id', initialData.id);
 
-      if (error) {
-        throw error;
+        if (error) {
+          throw error;
+        }
+        toast.success("Véhicule mis à jour avec succès !");
+      } else {
+        // Add new vehicle
+        const { data, error } = await supabase
+          .from('vehicles')
+          .insert([values]);
+
+        if (error) {
+          throw error;
+        }
+        toast.success("Véhicule ajouté avec succès !");
       }
-
-      toast.success("Véhicule ajouté avec succès !");
       form.reset();
       onSuccess?.();
     } catch (error: any) {
-      console.error("Erreur lors de l'ajout du véhicule:", error.message);
-      toast.error("Erreur lors de l'ajout du véhicule: " + error.message);
+      console.error("Erreur lors de l'opération sur le véhicule:", error.message);
+      toast.error("Erreur lors de l'opération sur le véhicule: " + error.message);
     }
   }
 
@@ -175,7 +218,9 @@ const VehicleForm: React.FC<VehicleFormProps> = ({ onSuccess, initialData }) => 
                   </FormItem>
                 )}
               />
-              <CustomButton type="submit" className="w-full">Ajouter le véhicule</CustomButton>
+              <CustomButton type="submit" className="w-full">
+                {initialData ? "Mettre à jour le véhicule" : "Ajouter le véhicule"}
+              </CustomButton>
             </form>
           </Form>
         </CustomCardContent>

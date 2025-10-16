@@ -12,22 +12,22 @@ interface MainLayoutProps {
 const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   const containerVariants = {
     hidden: { opacity: 0 },
-    visible: { opacity: 1, transition: { duration: 0.5, ease: "easeOut" } },
+    visible: { opacity: 1, transition: { duration: 0.5, ease: [0.42, 0, 0.58, 1] } }, // Using cubic-bezier array
   };
 
   const headerVariants = {
     hidden: { y: -50, opacity: 0 },
-    visible: { y: 0, opacity: 1, transition: { duration: 0.5, delay: 0.2 } },
+    visible: { y: 0, opacity: 1, transition: { duration: 0.5, delay: 0.2, ease: [0.42, 0, 0.58, 1] } }, // Using cubic-bezier array
   };
 
   const mainContentVariants = {
     hidden: { y: 20, opacity: 0 },
-    visible: { y: 0, opacity: 1, transition: { duration: 0.5, delay: 0.4 } },
+    visible: { y: 0, opacity: 1, transition: { duration: 0.5, delay: 0.4, ease: [0.42, 0, 0.58, 1] } }, // Using cubic-bezier array
   };
 
   const footerVariants = {
     hidden: { y: 50, opacity: 0 },
-    visible: { y: 0, opacity: 1, transition: { duration: 0.5, delay: 0.6 } },
+    visible: { y: 0, opacity: 1, transition: { duration: 0.5, delay: 0.6, ease: [0.42, 0, 0.58, 1] } }, // Using cubic-bezier array
   };
 
   return (
