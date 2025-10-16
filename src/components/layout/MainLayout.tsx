@@ -1,33 +1,75 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import Sidebar from './Sidebar';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { motion, Variants, Easing } from 'framer-motion'; // Import motion, Variants, and Easing
+import { motion, Variants, Easing } from 'framer-motion';
+import { supabase, auth } from '@/lib/supabase'; // Import auth
+import { toast } from 'sonner';
+import { CustomButton } from '@/components/CustomButton';
+import { LogOut } from 'lucide-react';
 
 interface MainLayoutProps {
   children: React.ReactNode;
 }
 
 const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
-  const containerVariants: Variants = { // Explicitly type as Variants
+  const navigate = useNavigate();
+  const [userEmail, setUserEmail] = useState<string | null>(null);
+
+  useEffect(() => {
+    const getUser = async () => {
+      const { data: { user } } = await auth.getUser();
+      if (user) {
+        setUserEmail(user.email);
+      } else {
+        setUserEmail(null);
+      }
+    };
+    getUser();
+
+    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
+      if (session?.user) {
+        setUserEmail(session.user.email);
+      } else {
+        setUserEmail(null);
+      }
+    });
+
+    return () => {
+      authListener.subscription.unsubscribe();
+    };
+  }, []);
+
+  const handleLogout = async () => {
+    const { error } = await auth.signOut();
+    if (error) {
+      console.error("Erreur lors de la déconnexion:", error.message);
+      toast.error("Erreur lors de la déconnexion: " + error.message);
+    } else {
+      toast.success("Déconnexion réussie !");
+      navigate('/login');
+    }
+  };
+
+  const containerVariants: Variants = {
     hidden: { opacity: 0 },
-    visible: { opacity: 1, transition: { duration: 0.5, ease: [0.42, 0, 0.58, 1] as Easing } }, // Explicitly cast to Easing
+    visible: { opacity: 1, transition: { duration: 0.5, ease: [0.42, 0, 0.58, 1] as Easing } },
   };
 
-  const headerVariants: Variants = { // Explicitly type as Variants
+  const headerVariants: Variants = {
     hidden: { y: -50, opacity: 0 },
-    visible: { y: 0, opacity: 1, transition: { duration: 0.5, delay: 0.2, ease: [0.42, 0, 0.58, 1] as Easing } }, // Explicitly cast to Easing
+    visible: { y: 0, opacity: 1, transition: { duration: 0.5, delay: 0.2, ease: [0.42, 0, 0.58, 1] as Easing } },
   };
 
-  const mainContentVariants: Variants = { // Explicitly type as Variants
+  const mainContentVariants: Variants = {
     hidden: { y: 20, opacity: 0 },
-    visible: { y: 0, opacity: 1, transition: { duration: 0.5, delay: 0.4, ease: [0.42, 0, 0.58, 1] as Easing } }, // Explicitly cast to Easing
+    visible: { y: 0, opacity: 1, transition: { duration: 0.5, delay: 0.4, ease: [0.42, 0, 0.58, 1] as Easing } },
   };
 
-  const footerVariants: Variants = { // Explicitly type as Variants
+  const footerVariants: Variants = {
     hidden: { y: 50, opacity: 0 },
-    visible: { y: 0, opacity: 1, transition: { duration: 0.5, delay: 0.6, ease: [0.42, 0, 0.58, 1] as Easing } }, // Explicitly cast to Easing
+    visible: { y: 0, opacity: 1, transition: { duration: 0.5, delay: 0.6, ease: [0.42, 0, 0.58, 1] as Easing } },
   };
 
   return (
@@ -50,11 +92,18 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
             <div className="text-sm text-muted-foreground hidden md:block">
               {new Date().toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
             </div>
+            {userEmail && (
+              <span className="text-sm font-medium text-foreground hidden sm:block">{userEmail}</span>
+            )}
             <Avatar>
               <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
               <AvatarFallback>FM</AvatarFallback>
             </Avatar>
             <ThemeToggle />
+            <CustomButton variant="ghost" size="icon" onClick={handleLogout}>
+              <LogOut className="h-[1.2rem] w-[1.2rem]" />
+              <span className="sr-only">Déconnexion</span>
+            </CustomButton>
           </div>
         </motion.header>
         <motion.main
