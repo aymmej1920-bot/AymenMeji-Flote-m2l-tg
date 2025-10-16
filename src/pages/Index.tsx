@@ -1,4 +1,3 @@
-import { MadeWithDyad } from "@/components/made-with-dyad";
 import { Link } from "react-router-dom";
 import { CustomButton } from "@/components/CustomButton";
 import { CustomCard, CustomCardContent } from "@/components/CustomCard";
@@ -13,21 +12,20 @@ const Index = () => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
-        <CustomCard className="text-center p-8">
+        <CustomCard className="text-center p-8 professional-shadow">
           <CustomCardContent className="p-0">
-            <h1 className="text-3xl md:text-4xl font-heading font-semibold mb-4 text-text-main">Bienvenue sur Fleet Manager M2l-TG</h1> {/* Adjusted title size and font-weight */}
-            <p className="text-xl text-text-secondary mb-8"> {/* Using new secondary text color */}
+            <h1 className="text-3xl md:text-4xl font-heading font-semibold mb-4 text-text-main">Bienvenue sur Fleet Manager Pro</h1>
+            <p className="text-xl text-text-secondary mb-8">
               Votre solution complète pour une gestion de flotte efficace et intelligente.
             </p>
             <CustomButton size="lg" asChild>
-              <Link to="/vehicles" className="flex items-center gap-2">
-                <Car className="h-5 w-5" /> Commencer la gestion des véhicules
+              <Link to="/dashboard" className="flex items-center gap-2">
+                <Car className="h-5 w-5" /> Accéder au Tableau de Bord
               </Link>
             </CustomButton>
           </CustomCardContent>
         </CustomCard>
       </motion.div>
-      <MadeWithDyad />
     </div>
   );
 };

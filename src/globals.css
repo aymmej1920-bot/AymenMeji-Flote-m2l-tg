@@ -13,7 +13,7 @@
     --popover: 0 0% 100%;
     --popover-foreground: 215 25% 20%;
 
-    --primary: 170 100% 39%; /* #00C8AA (modern turquoise) */
+    --primary: 221 83% 59%; /* #3B82F6 (Blue from KPI cards) */
     --primary-foreground: 0 0% 100%; /* White */
 
     --secondary: 210 20% 97%; /* Similar to background for subtle secondary elements */
@@ -30,18 +30,18 @@
 
     --border: 210 10% 90%; /* Light grey border */
     --input: 210 10% 90%;
-    --ring: 170 100% 39%;
+    --ring: 221 83% 59%; /* Primary blue */
 
     --radius: 0.75rem; /* 12px */
 
     --sidebar-background: 220 10% 10%; /* #111827 (deep night blue) */
     --sidebar-foreground: 0 0% 100%; /* White */
-    --sidebar-primary: 170 100% 39%; /* #00C8AA */
+    --sidebar-primary: 221 83% 59%; /* #3B82F6 */
     --sidebar-primary-foreground: 0 0% 100%; /* White */
-    --sidebar-accent: 170 100% 39%; /* #00C8AA */
+    --sidebar-accent: 221 83% 59%; /* #3B82F6 */
     --sidebar-accent-foreground: 0 0% 100%; /* White */
     --sidebar-border: 220 10% 15%; /* Slightly lighter night blue for border */
-    --sidebar-ring: 170 100% 39%;
+    --sidebar-ring: 221 83% 59%;
   }
 
   .dark {
@@ -54,7 +54,7 @@
     --popover: 218 10% 10%;
     --popover-foreground: 210 20% 90%;
 
-    --primary: 170 70% 40%; /* #14B8A6 (dark accent turquoise) */
+    --primary: 221 83% 59%; /* #3B82F6 */
     --primary-foreground: 220 10% 10%; /* #111827 */
 
     --secondary: 217.2 32.6% 17.5%;
@@ -63,7 +63,7 @@
     --muted: 217.2 32.6% 17.5%;
     --muted-foreground: 215 20.2% 65.1%;
 
-    --accent: 170 70% 40%; /* #14B8A6 */
+    --accent: 221 83% 59%; /* #3B82F6 */
     --accent-foreground: 210 20% 90%;
 
     --destructive: 0 62.8% 30.6%;
@@ -71,16 +71,16 @@
 
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
-    --ring: 170 70% 40%;
+    --ring: 221 83% 59%;
     
     --sidebar-background: 220 10% 10%; /* #111827 */
     --sidebar-foreground: 210 20% 90%; /* #E5E7EB */
-    --sidebar-primary: 170 70% 40%; /* #14B8A6 */
+    --sidebar-primary: 221 83% 59%; /* #3B82F6 */
     --sidebar-primary-foreground: 220 10% 10%; /* #111827 */
-    --sidebar-accent: 170 70% 40%; /* #14B8A6 */
+    --sidebar-accent: 221 83% 59%; /* #3B82F6 */
     --sidebar-accent-foreground: 210 20% 90%; /* #E5E7EB */
     --sidebar-border: 217.2 32.6% 17.5%;
-    --sidebar-ring: 170 70% 40%;
+    --sidebar-ring: 221 83% 59%;
   }
 }
 
@@ -122,5 +122,23 @@
   /* Custom styles for DataTable header */
   .data-table-header-row {
     @apply bg-table-header-bg text-text-main font-semibold;
+  }
+
+  /* Styles from HTML prototype */
+  .gradient-bg {
+      background: linear-gradient(135deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
+  }
+  .professional-shadow {
+      box-shadow: var(--tw-shadow-professional);
+  }
+  .status-badge {
+      @apply px-3 py-1 text-xs rounded-full font-medium transition-all duration-300;
+  }
+  .maintenance-alert {
+      background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+      animation: pulse 2s infinite;
+  }
+  .alert-expire {
+      animation: pulse 2s infinite;
   }
 }

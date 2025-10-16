@@ -3,9 +3,10 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { CustomButton } from '@/components/CustomButton';
-import { Home, LayoutDashboard } from 'lucide-react'; // Only keep essential icons
+import { LayoutDashboard, Car, Users, Route, Fuel, FileText, Wrench, BarChart3, Truck, LogOut } from 'lucide-react'; // 'Home' removed
 import { cn } from '@/lib/utils';
 import { motion, Variants, Easing } from 'framer-motion';
+import { toast } from 'sonner'; // Added toast import
 
 interface SidebarProps {
   isOpen?: boolean;
@@ -13,8 +14,14 @@ interface SidebarProps {
 }
 
 const navItems = [
-  { name: 'Accueil', href: '/', icon: Home },
-  { name: 'Tableau de Bord', href: '/dashboard', icon: LayoutDashboard }, // Placeholder for future dashboard
+  { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
+  { name: 'Véhicules', href: '/vehicles', icon: Car },
+  { name: 'Conducteurs', href: '/drivers', icon: Users },
+  { name: 'Tournées', href: '/tours', icon: Route },
+  { name: 'Carburant', href: '/fuel', icon: Fuel },
+  { name: 'Documents', href: '/documents', icon: FileText },
+  { name: 'Maintenance', href: '/maintenance', icon: Wrench },
+  { name: 'Résumé', href: '/summary', icon: BarChart3 },
 ];
 
 const Sidebar: React.FC<SidebarProps> = () => {
@@ -36,12 +43,23 @@ const Sidebar: React.FC<SidebarProps> = () => {
 
   return (
     <motion.aside
-      className="w-64 bg-sidebar-background text-sidebar-foreground border-r border-sidebar-border p-4 flex flex-col shadow-lg"
+      className="w-64 bg-gray-800 text-white professional-shadow flex flex-col"
       initial="hidden"
       animate="visible"
       variants={sidebarVariants}
     >
-      <nav className="flex-grow space-y-2">
+      <div className="p-6 border-b border-gray-700">
+          <Link to="/" className="flex items-center space-x-3">
+              <div className="bg-white bg-opacity-20 p-2 rounded-full">
+                  <Truck className="text-2xl" />
+              </div>
+              <div>
+                  <h2 className="text-2xl font-bold text-white">Fleet Manager Pro</h2>
+                  <p className="text-gray-400 text-sm">Gestion de Flotte</p>
+              </div>
+          </Link>
+      </div>
+      <nav className="flex-grow px-4 py-6 space-y-2">
         {navItems.map((item, index) => {
           const isActive = location.pathname === item.href;
           return (
@@ -55,24 +73,15 @@ const Sidebar: React.FC<SidebarProps> = () => {
                 variant="ghost"
                 className={cn(
                   "w-full justify-start text-left px-4 py-2 rounded-lg transition-colors duration-200",
+                  "sidebar-btn", // Custom class for sidebar button styling
                   isActive
-                    ? "bg-sidebar-primary/10 text-sidebar-primary hover:bg-sidebar-primary/20"
-                    : "hover:bg-sidebar-border hover:text-sidebar-foreground"
+                    ? "bg-blue-600 text-white shadow-md" // Active state styling
+                    : "hover:bg-gray-700 text-gray-300 hover:text-white" // Inactive state styling
                 )}
                 asChild
               >
                 <Link to={item.href} className="flex items-center gap-3">
-                  {isActive && (
-                    <motion.div
-                      layoutId="sidebar-active-indicator"
-                      className="absolute left-0 top-0 h-full w-1 bg-sidebar-primary rounded-r-md"
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      exit={{ opacity: 0 }}
-                      transition={{ duration: 0.2 }}
-                    />
-                  )}
-                  <item.icon className={cn("h-5 w-5", isActive && "ml-2")} />
+                  <item.icon className={cn("h-5 w-5", isActive && "ml-0")} /> {/* Removed ml-2 for active state */}
                   <span className="font-medium">{item.name}</span>
                 </Link>
               </CustomButton>
@@ -80,6 +89,14 @@ const Sidebar: React.FC<SidebarProps> = () => {
           );
         })}
       </nav>
+      <div className="p-4 border-t border-gray-700">
+        <CustomButton 
+          onClick={() => { /* Implement data reset logic here */ toast.info("Fonctionnalité de réinitialisation des données à implémenter."); }} 
+          className="w-full bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition-all duration-300"
+        >
+          <LogOut className="h-4 w-4 mr-2" /> Réinitialiser Données
+        </CustomButton>
+      </div>
     </motion.aside>
   );
 };

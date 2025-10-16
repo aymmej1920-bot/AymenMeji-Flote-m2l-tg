@@ -85,12 +85,26 @@ export default {
         "dark-accent": {
           DEFAULT: "#14B8A6",
           foreground: "#111827",
-        }
+        },
+        // Colors from the provided HTML for gradients and specific elements
+        "gradient-start": "#4A00E0",
+        "gradient-end": "#8E2DE2",
+        "kpi-blue-start": "#3B82F6",
+        "kpi-blue-end": "#2563EB",
+        "kpi-green-start": "#10B981",
+        "kpi-green-end": "#059669",
+        "kpi-orange-start": "#F59E0B",
+        "kpi-orange-end": "#EA580C",
+        "kpi-red-start": "#EF4444",
+        "kpi-red-end": "#DC2626",
+        "kpi-purple-start": "#8B5CF6",
+        "kpi-purple-end": "#7C3AED",
       },
       borderRadius: {
         lg: "12px", // Adjusted for more rounded corners
         md: "8px",
         sm: "4px",
+        xl: "1rem", // Added for professional-shadow cards
       },
       fontFamily: {
         sans: ["Inter", "sans-serif"], // Default text
@@ -114,11 +128,18 @@ export default {
             height: "0",
           },
         },
+        pulse: { // Added pulse animation for alerts
+          "0%, 100%": { opacity: "1" },
+          "50%": { opacity: ".5" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
         "pulse-light": "pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite",
+      },
+      boxShadow: { // Custom shadow for professional look
+        'professional': '0 10px 30px rgba(0, 0, 0, 0.15)',
       },
     },
   },
