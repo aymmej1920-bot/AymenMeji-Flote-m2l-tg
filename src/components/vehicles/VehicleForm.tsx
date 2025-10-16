@@ -4,7 +4,7 @@ import React from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { CustomButton } from "@/components/CustomButton"; // Utiliser CustomButton
+import { CustomButton } from "@/components/CustomButton";
 import {
   Form,
   FormControl,
@@ -16,6 +16,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { supabase } from "@/lib/supabase";
+import { CustomCard, CustomCardContent, CustomCardHeader, CustomCardTitle } from "@/components/CustomCard"; // Import CustomCard components
+import { motion } from "framer-motion"; // Import motion
 
 // Schéma de validation pour un véhicule
 const vehicleFormSchema = z.object({
@@ -83,89 +85,102 @@ const VehicleForm: React.FC<VehicleFormProps> = ({ onSuccess, initialData }) => 
   }
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-        <FormField
-          control={form.control}
-          name="make"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Fabricant</FormLabel>
-              <FormControl>
-                <Input placeholder="Ex: Renault" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="model"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Modèle</FormLabel>
-              <FormControl>
-                <Input placeholder="Ex: Clio" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="year"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Année</FormLabel>
-              <FormControl>
-                <Input type="number" placeholder="Ex: 2020" {...field} onChange={event => field.onChange(parseInt(event.target.value))} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="license_plate"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Plaque d'immatriculation</FormLabel>
-              <FormControl>
-                <Input placeholder="Ex: AB-123-CD" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="vin"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Numéro d'identification du véhicule (VIN)</FormLabel>
-              <FormControl>
-                <Input placeholder="Ex: 17 caractères" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="mileage"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Kilométrage</FormLabel>
-              <FormControl>
-                <Input type="number" placeholder="Ex: 50000" {...field} onChange={event => field.onChange(parseInt(event.target.value))} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <CustomButton type="submit">Ajouter le véhicule</CustomButton> {/* Utiliser CustomButton */}
-      </form>
-    </Form>
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+    >
+      <CustomCard className="p-6">
+        <CustomCardHeader className="pb-4">
+          <CustomCardTitle className="text-xl">Informations sur le véhicule</CustomCardTitle>
+        </CustomCardHeader>
+        <CustomCardContent>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              <FormField
+                control={form.control}
+                name="make"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Fabricant</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Ex: Renault" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="model"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Modèle</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Ex: Clio" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="year"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Année</FormLabel>
+                    <FormControl>
+                      <Input type="number" placeholder="Ex: 2020" {...field} onChange={event => field.onChange(parseInt(event.target.value))} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="license_plate"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Plaque d'immatriculation</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Ex: AB-123-CD" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="vin"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Numéro d'identification du véhicule (VIN)</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Ex: 17 caractères" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="mileage"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Kilométrage</FormLabel>
+                    <FormControl>
+                      <Input type="number" placeholder="Ex: 50000" {...field} onChange={event => field.onChange(parseInt(event.target.value))} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <CustomButton type="submit" className="w-full">Ajouter le véhicule</CustomButton>
+            </form>
+          </Form>
+        </CustomCardContent>
+      </CustomCard>
+    </motion.div>
   );
 };
 
