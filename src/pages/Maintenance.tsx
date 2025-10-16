@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { CustomButton } from '@/components/CustomButton';
-import { Plus, OilCan, CircleAlert } from 'lucide-react'; // Corrected icons: OilCan
+import { Plus, Droplet, CircleAlert } from 'lucide-react'; // Corrected icons: Droplet
 import { motion } from 'framer-motion';
 import { CustomCard, CustomCardHeader, CustomCardTitle, CustomCardDescription } from '@/components/CustomCard'; // Added CustomCardDescription
 
@@ -38,7 +38,7 @@ const Maintenance: React.FC = () => {
         <CustomCard className="bg-orange-50 border-l-4 border-orange-400 p-6 rounded-r-lg professional-shadow">
           <CustomCardHeader> {/* Used CustomCardHeader */}
             <div className="flex items-center">
-              <OilCan className="text-orange-400 text-2xl mr-4" /> {/* Used OilCan */}
+              <Droplet className="text-orange-400 text-2xl mr-4" /> {/* Used Droplet */}
               <div>
                 <CustomCardTitle className="text-lg font-semibold text-orange-700">Vidanges à Prévoir</CustomCardTitle>
                 <CustomCardDescription className="text-orange-600" id="upcomingMaintenance">3 véhicules approchent des 10,000 km</CustomCardDescription> {/* Dynamic content */}

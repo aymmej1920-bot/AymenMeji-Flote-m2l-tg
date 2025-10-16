@@ -3,7 +3,7 @@
 import React from 'react';
 import { CustomCard, CustomCardHeader, CustomCardTitle, CustomCardContent, CustomCardDescription } from '@/components/CustomCard'; // Added CustomCardDescription
 import { motion } from 'framer-motion';
-import { Truck, Users, Route, Road } from 'lucide-react'; // Corrected icon: Road
+import { Truck, Users, Route, Map } from 'lucide-react'; // Corrected icon: Map
 
 const Summary: React.FC = () => {
   return (
@@ -56,7 +56,7 @@ const Summary: React.FC = () => {
               <CustomCardTitle className="text-3xl font-bold text-white" id="summaryTotalDistance">0</CustomCardTitle> {/* Dynamic content */}
               <CustomCardDescription className="text-purple-100 text-xs">km ce mois</CustomCardDescription>
             </div>
-            <Road className="text-3xl text-purple-200" />
+            <Map className="text-3xl text-purple-200" />
           </div>
         </CustomCard>
       </div>
