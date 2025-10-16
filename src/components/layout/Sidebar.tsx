@@ -5,7 +5,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { CustomButton } from '@/components/CustomButton';
 import { Car, Users, Fuel, FileText, Wrench, Map, ClipboardList, BarChart2, Bell, Home, LayoutDashboard } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { motion } from 'framer-motion'; // Import motion
+import { motion, Variants, Easing } from 'framer-motion'; // Import motion, Variants, and Easing
 
 interface SidebarProps {
   isOpen?: boolean; // Potentiellement pour un état mobile
@@ -29,14 +29,18 @@ const navItems = [
 const Sidebar: React.FC<SidebarProps> = () => {
   const location = useLocation();
 
-  const sidebarVariants = {
+  const sidebarVariants: Variants = {
     hidden: { x: -200, opacity: 0 },
-    visible: { x: 0, opacity: 1, transition: { duration: 0.5, ease: [0.42, 0, 0.58, 1] } }, // Using cubic-bezier array
+    visible: { x: 0, opacity: 1, transition: { duration: 0.5, ease: [0.42, 0, 0.58, 1] as Easing } }, // Explicitly cast to Easing
   };
 
-  const itemVariants = {
+  const itemVariants: Variants = {
     hidden: { opacity: 0, x: -20 },
-    visible: { opacity: 1, x: 0 },
+    visible: (i: number) => ({ // This is correct for Variants
+      opacity: 1,
+      x: 0,
+      transition: { delay: 0.1 + i * 0.05, ease: [0.42, 0, 0.58, 1] as Easing }, // Explicitly cast to Easing
+    }),
   };
 
   return (
@@ -53,7 +57,7 @@ const Sidebar: React.FC<SidebarProps> = () => {
             <motion.div
               key={item.name}
               variants={itemVariants}
-              transition={{ delay: 0.1 + index * 0.05, ease: [0.42, 0, 0.58, 1] }} // Using cubic-bezier array
+              custom={index} // Pass index as custom prop for staggered animation
             >
               <CustomButton
                 variant="ghost"

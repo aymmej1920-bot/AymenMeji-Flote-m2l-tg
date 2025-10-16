@@ -3,31 +3,31 @@ import { Link } from 'react-router-dom';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import Sidebar from './Sidebar';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { motion } from 'framer-motion'; // Import motion
+import { motion, Variants, Easing } from 'framer-motion'; // Import motion, Variants, and Easing
 
 interface MainLayoutProps {
   children: React.ReactNode;
 }
 
 const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
-  const containerVariants = {
+  const containerVariants: Variants = { // Explicitly type as Variants
     hidden: { opacity: 0 },
-    visible: { opacity: 1, transition: { duration: 0.5, ease: [0.42, 0, 0.58, 1] } }, // Using cubic-bezier array
+    visible: { opacity: 1, transition: { duration: 0.5, ease: [0.42, 0, 0.58, 1] as Easing } }, // Explicitly cast to Easing
   };
 
-  const headerVariants = {
+  const headerVariants: Variants = { // Explicitly type as Variants
     hidden: { y: -50, opacity: 0 },
-    visible: { y: 0, opacity: 1, transition: { duration: 0.5, delay: 0.2, ease: [0.42, 0, 0.58, 1] } }, // Using cubic-bezier array
+    visible: { y: 0, opacity: 1, transition: { duration: 0.5, delay: 0.2, ease: [0.42, 0, 0.58, 1] as Easing } }, // Explicitly cast to Easing
   };
 
-  const mainContentVariants = {
+  const mainContentVariants: Variants = { // Explicitly type as Variants
     hidden: { y: 20, opacity: 0 },
-    visible: { y: 0, opacity: 1, transition: { duration: 0.5, delay: 0.4, ease: [0.42, 0, 0.58, 1] } }, // Using cubic-bezier array
+    visible: { y: 0, opacity: 1, transition: { duration: 0.5, delay: 0.4, ease: [0.42, 0, 0.58, 1] as Easing } }, // Explicitly cast to Easing
   };
 
-  const footerVariants = {
+  const footerVariants: Variants = { // Explicitly type as Variants
     hidden: { y: 50, opacity: 0 },
-    visible: { y: 0, opacity: 1, transition: { duration: 0.5, delay: 0.6, ease: [0.42, 0, 0.58, 1] } }, // Using cubic-bezier array
+    visible: { y: 0, opacity: 1, transition: { duration: 0.5, delay: 0.6, ease: [0.42, 0, 0.58, 1] as Easing } }, // Explicitly cast to Easing
   };
 
   return (
