@@ -44,7 +44,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
           variants={headerVariants}
         >
           <Link to="/" className="text-2xl font-heading font-bold text-primary">
-            Fleet Manager
+            Application de gestion Parc auto M2l-TG
           </Link>
           <div className="flex items-center space-x-4">
             <div className="text-sm text-muted-foreground hidden md:block">
@@ -67,7 +67,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
           className="p-4 text-center text-sm text-muted-foreground border-t border-border bg-card"
           variants={footerVariants}
         >
-          © {new Date().getFullYear()} Fleet Manager. Made with Dyad.
+          © {new Date().getFullYear()} Application de gestion Parc auto M2l-TG. Made with Dyad.
         </motion.footer>
       </div>
     </motion.div>
