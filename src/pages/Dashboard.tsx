@@ -32,47 +32,58 @@ const Dashboard: React.FC = () => {
     queryKey: ['dashboardStats'],
     queryFn: async () => {
       const userId = await getUserId();
+      console.log("Dashboard: Authenticated user ID:", userId);
 
       // Fetch total vehicles
+      const vehiclesSelectString = 'id,user_id,status'; // Explicitly include user_id and status
+      console.log("Dashboard: Supabase select string for total vehicles:", vehiclesSelectString);
       const { count: totalVehiclesCount, error: vehiclesError } = await supabase
         .from('vehicles')
-        .select('id', { count: 'exact' })
+        .select(vehiclesSelectString, { count: 'exact' })
         .eq('user_id', userId);
       if (vehiclesError) throw vehiclesError;
 
       // Fetch active drivers
+      const driversSelectString = 'id,user_id'; // Explicitly include user_id
+      console.log("Dashboard: Supabase select string for active drivers:", driversSelectString);
       const { count: activeDriversCount, error: driversError } = await supabase
         .from('drivers')
-        .select('id', { count: 'exact' })
+        .select(driversSelectString, { count: 'exact' })
         .eq('user_id', userId);
       if (driversError) throw driversError;
 
       // Fetch maintenance in progress
+      const maintenanceSelectString = 'id,user_id,status'; // Explicitly include user_id and status
+      console.log("Dashboard: Supabase select string for maintenance in progress:", maintenanceSelectString);
       const { count: maintenanceInProgressCount, error: maintenanceError } = await supabase
         .from('maintenance_records')
-        .select('id', { count: 'exact' })
+        .select(maintenanceSelectString, { count: 'exact' })
         .eq('user_id', userId);
       if (maintenanceError) throw maintenanceError;
 
       // Fetch fuel logs for average fuel level (this is a placeholder, actual fuel level would be more complex)
+      const fuelLogsSelectString = 'quantity_liters,user_id'; // Explicitly include user_id
+      console.log("Dashboard: Supabase select string for fuel logs:", fuelLogsSelectString);
       const { data: fuelLogs, error: fuelLogsError } = await supabase
         .from('fuel_logs')
-        .select('quantity_liters')
+        .select(fuelLogsSelectString)
         .eq('user_id', userId);
       if (fuelLogsError) throw fuelLogsError;
 
       // Fetch operational vehicles (placeholder, would need more complex logic)
+      console.log("Dashboard: Supabase select string for operational vehicles:", vehiclesSelectString);
       const { count: operationalVehiclesCount, error: operationalVehiclesError } = await supabase
         .from('vehicles')
-        .select('id', { count: 'exact' })
+        .select(vehiclesSelectString, { count: 'exact' })
         .eq('user_id', userId)
         .eq('status', 'Actif'); // Assuming 'Actif' means operational
       if (operationalVehiclesError) throw operationalVehiclesError;
 
       // Fetch planned maintenance done (placeholder, would need more complex logic)
+      console.log("Dashboard: Supabase select string for planned maintenance done:", maintenanceSelectString);
       const { count: plannedMaintenanceDoneCount, error: plannedMaintenanceDoneError } = await supabase
         .from('maintenance_records')
-        .select('id', { count: 'exact' })
+        .select(maintenanceSelectString, { count: 'exact' })
         .eq('user_id', userId)
         .eq('status', 'Terminé'); // Assuming 'Terminé' means done
       if (plannedMaintenanceDoneError) throw plannedMaintenanceDoneError;
