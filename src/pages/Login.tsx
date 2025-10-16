@@ -34,7 +34,7 @@ const Login: React.FC = () => {
         transition={{ duration: 0.5 }}
         className="w-full max-w-md"
       >
-        <CustomCard className="p-6">
+        <CustomCard className="p-6 shadow-card-float"> {/* Ajout de l'ombre flottante ici */}
           <CustomCardHeader className="text-center">
             <CustomCardTitle className="text-3xl font-heading text-foreground">
               Connexion à Fleet Manager
